@@ -9,3 +9,11 @@ class Cliente(db.Model):
     senha = db.Column(db.String(20), nullable=False)
     cpf = db.Column(db.String(11), unique=True, nullable=False)
     
+class Produto(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    marca = db.Column(db.String(20), nullable=False)
+    modelo = db.Column(db.String(20), nullable=False)
+    descricao = db.Column(db.String(120), nullable=False)
+    lance_inicial = db.Column(db.Float(), nullable=False)
+    lance_adicional = db.Column(db.Float(), nullable=False)
+    vendido = db.Column(db.Boolean(), default=False, nullable=True)

@@ -1,0 +1,67 @@
+Veiculos:
+	- FK_Produto
+	- placa
+	- ano
+	- qtd_portas
+	- FK_TipoVeiculo
+
+Eletronico:
+	- FK_TipoEletronico
+	- voltagem
+	- FK_Produto
+
+Produto:
+	- marca
+	- modelo
+	- descricao
+	- lance_inicial
+	- lance_adicional
+	- vendido
+	- FK_Leilao
+
+TipoVeiculo:
+	- ID
+	- nome (moto, carro, caminhão, utilitário)
+
+TipoEletronico:
+	- ID
+	- nome (notebook, monitores, hub, sw, roteadores)
+
+Leilao:
+	- data_futura
+	- data_visitacao
+	- detalhes
+	- qtd_produtos
+	- status
+
+Cliente:
+	- nome
+	- cpf
+	- email
+	- telefone
+	- senha
+	- 
+
+Lance:
+	- FK_Cliente
+	- FK_Leilao
+	- FK_Produto
+	- data
+	- valor
+	- 
+
+Financeiro:
+	- banco
+	- FK_Conta
+
+Conta:
+	- ag
+	- cc
+
+LeilaoFinanceiro:
+	- FK_Financeiro
+	- FK_Leilao
+
+
+
+
