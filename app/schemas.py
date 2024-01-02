@@ -18,4 +18,4 @@ class VeiculoSchema(Schema):
 
 class EletronicoSchema(Schema):
     id = fields.Int(dump_only=True)
-    
+    voltagem = fields.Str(required=True)

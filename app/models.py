@@ -9,7 +9,7 @@ class Cliente(db.Model):
     senha = db.Column(db.String(20), nullable=False)
     cpf = db.Column(db.String(11), unique=True, nullable=False)
     
-class Veiculos(db.Model):
+class Veiculo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     placa = db.Column(db.String(10), nullable=False, unique=True)
     ano = db.Column(db.String(4), nullable=False)
