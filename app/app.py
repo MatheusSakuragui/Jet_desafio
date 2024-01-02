@@ -6,6 +6,8 @@ from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from app.resources.cliente import ClienteResource
 from app.resources.produto import ProdutoResource
+from app.resources.financeiro import FinanceiroResource
+from app.resources.conta import ContaResource
 
 def create_app():
     app = Flask(__name__)
@@ -17,5 +19,11 @@ def create_app():
     api = Api(app)
     api.add_resource(ClienteResource, '/clientes', '/clientes/<int:id>')
     api.add_resource(ProdutoResource, '/produtos', '/produtos/<int:id>')
+    api.add_resource(FinanceiroResource, '/financeiro', '/financeiro/<int:id>')
+    api.add_resource(ContaResource, '/conta', '/conta/<int:id>')
     
+    with app.app_context():
+        db.create_all()
+        db.session.commit()
+
     return app

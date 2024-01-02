@@ -51,17 +51,14 @@ Lance:
 	- 
 
 Financeiro:
+	- ID
 	- banco
-	- FK_Conta
 
 Conta:
 	- ag
 	- cc
+	- fk_
 
 LeilaoFinanceiro:
 	- FK_Financeiro
 	- FK_Leilao
-
-
-
-
