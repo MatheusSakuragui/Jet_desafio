@@ -9,3 +9,11 @@ class Cliente(db.Model):
     senha = db.Column(db.String(20), nullable=False)
     cpf = db.Column(db.String(11), unique=True, nullable=False)
     
+    
+class Leilao(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    data_futura = db.Column(db.DateTime(80), nullable=False)
+    data_visitacao = db.Column(db.DateTime(80), nullable=False)
+    detalhes = db.Column(db.String(120), nullable=False)
+    qtd_produtos = db.Column(db.Integer, nullable=False)
+    status = db.Column(db.Enum('EM ABERTO', 'EM ANDAMENTO','FINALIZADO', name='status_enum'), server_default='EM ABERTO', nullable=False)
