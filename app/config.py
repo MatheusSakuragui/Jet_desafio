@@ -1,6 +1,7 @@
+from enum import Enum
 class Config:
     FLASK_APP="run.py"
-    FLASK_ENV="envBack"
+    FLASK_ENV="env"
     SECRET_KEY='secretkey'
     JWT_SECRET_KEY='jwtsecretkey'
     SQLALCHEMY_DATABASE_URI='sqlite:///leilao.db'

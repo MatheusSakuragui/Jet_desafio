@@ -9,3 +9,6 @@ class Cliente(db.Model):
     senha = db.Column(db.String(20), nullable=False)
     cpf = db.Column(db.String(11), unique=True, nullable=False)
     
+    def verificar_senha(self, senha):
+        return self.senha == senha
+    
