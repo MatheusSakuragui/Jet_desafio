@@ -12,8 +12,21 @@ class Cliente(db.Model):
     
     def verificar_senha(self, senha):
         return self.senha == senha
+      
+class Veiculos(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    placa = db.Column(db.String(10), nullable=False, unique=True)
+    ano = db.Column(db.String(4), nullable=False)
+    qtd_portas = db.Column(db.Integer, nullable=False)
+    produto_id = db.Column(db.Integer, db.ForeignKey('produto.id'), nullable=False)
+    
+class Eletronico(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    voltagem = db.Column(db.String(3), nullable=False)
+    produto_id = db.Column(db.Integer, db.ForeignKey('produto.id'), nullable=False)
 
  # ! Produtos não vendidos deverão ser associados a um leilão futuro
+
 class Produto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     marca = db.Column(db.String(20), nullable=False)
@@ -25,6 +38,9 @@ class Produto(db.Model):
     leilao_id = db.Column(db.Integer, db.ForeignKey('leilao.id'), nullable=False)
     tipo_produto_id = db.Column(db.Integer, db.ForeignKey('tipo_produto.id'), nullable=False)
     leilao = db.relationship('Leilao', backref=db.backref('produtos', lazy=True))
+    # veiculo = db.relationship('Veiculo', backref=db.backref('produtos', lazy=True))
+    # eletronico = db.relationship('Eletronico', backref=db.backref('produtos', lazy=True))
+    
     
 class Financeiro(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -36,16 +52,6 @@ class Conta(db.Model):
     conta_corrente = db.Column(db.String(20), nullable=False)
     financeiro_id = db.Column(db.Integer, db.ForeignKey('financeiro.id'), nullable=False)
 
-    # ! A decidir a maneira de como associar com Produto e colocar sua FK
-class Veiculos(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    placa = db.Column(db.String(10), nullable=False, unique=True)
-    ano = db.Column(db.String(4), nullable=False)
-    qtd_portas = db.Column(db.Integer, nullable=False)
-    
-class Eletronico(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    voltagem = db.Column(db.String(3), nullable=False)
 
 # ! Colocas as instituições financeiras no retorno
 class Leilao(db.Model):
