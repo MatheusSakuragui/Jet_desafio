@@ -85,6 +85,7 @@ class ProdutoResourceLista(Resource):
         self.reqparse.add_argument('max', type=int)
         self.reqparse.add_argument('leilaoid', type=int)
         self.reqparse.add_argument('tipoproduto', type=str)
+        self.reqparse.add_argument('nome', type=str)
         super(ProdutoResourceLista).__init__()
         
     def get(self):
@@ -95,21 +96,24 @@ class ProdutoResourceLista(Resource):
             if value is not None:
                 match(key):
                     case 'min':
-                        filters_list.append(Produto.lance_inicial > value)
+                        filters_list.append(Produto.lance_inicial >= value)
                     case 'max':
-                        filters_list.append(Produto.lance_inicial < value)
+                        filters_list.append(Produto.lance_inicial <= value)
                     case 'leilaoid':
                         filters_list.append(Produto.leilao_id == value)
                     case 'tipoproduto':
                         tipoproduto: TipoProduto = TipoProduto.query.filter_by(eletronico_veiculo=value).first()
                         filters_list.append(Produto.tipo_produto_id == tipoproduto.id)
+                    case 'nome':
+                        filters_list.append(Produto.descricao.like(f'%{value}%'))
                 
         ProdutosFiltrados = Produto.query.filter(and_(*filters_list))
+        ProdutoRetorno = []
         
         for produto in ProdutosFiltrados:
             leilao = Leilao.query.get_or_404(produto.leilao_id)
             tipo_produto = TipoProduto.query.get_or_404(produto.tipo_produto_id)
-            ProdutoRetorno = {
+            ProdutoRetorno.append({
                 'id':produto.id,
                 'marca':produto.marca,
                 'modelo':produto.modelo,
@@ -122,6 +126,6 @@ class ProdutoResourceLista(Resource):
                 'leilao_status':leilao.status,
                 'tipo_produto_info':tipo_produto.eletronico_veiculo,
                 'tipo_produto_descricao':tipo_produto.descricao
-            }
+            })
     
         return ProdutoRetorno
