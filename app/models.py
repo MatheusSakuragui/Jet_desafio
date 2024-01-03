@@ -21,7 +21,10 @@ class Produto(db.Model):
     lance_inicial = db.Column(db.Float(), nullable=False)
     lance_adicional = db.Column(db.Float(), nullable=False)
     vendido = db.Column(db.Boolean(), default=False, nullable=True)
-
+    leilao_id = db.Column(db.Integer, db.ForeignKey('leilao.id'), nullable=False)
+    tipo_produto_id = db.Column(db.Integer, db.ForeignKey('tipo_produto.id'), nullable=False)
+    leilao = db.relationship('Leilao', backref=db.backref('produtos', lazy=True))
+    
 class Financeiro(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     banco = db.Column(db.String(50), nullable=False)
@@ -51,8 +54,39 @@ class Leilao(db.Model):
     qtd_produtos = db.Column(db.Integer, nullable=False)
     status = db.Column(db.Enum('EM ABERTO', 'EM ANDAMENTO','FINALIZADO', name='status_enum'), server_default='EM ABERTO', nullable=False)
     lance = db.relationship('Lance', backref='leilao', lazy=True)
+    
+    def detalhes_leilao(self):
+        
+        produtos = Produto.query.filter_by(leilao_id=self.id).order_by(Produto.id).all()
 
+        detalhes_leilao = {
+            'id': self.id,
+            'data_futura': self.data_futura.strftime('%Y-%m-%dT%H:%M:%S'),
+            'data_visitacao': self.data_visitacao.strftime('%Y-%m-%dT%H:%M:%S'),
+            'detalhes': self.detalhes,
+            'qtd_produtos': self.qtd_produtos,
+            'status': self.status,
+            'produtos': [{
+                'dados_do_produto': {
+                    'marca': produto.marca,
+                    'modelo': produto.modelo,
+                    'descricao': produto.descricao,
+                    'lance_inicial': produto.lance_inicial,
+                    'lance_adicional': produto.lance_adicional,
+                    'vendido': produto.vendido,
+                }
+            } for produto in produtos]
+        }
 
+        return detalhes_leilao
+    def verificar_atualizar_status(self):
+        data_atual = datetime.now()
+        
+        if self.data_futura <= data_atual < self.data_visitacao:
+            self.status = 'EM ANDAMENTO'
+        elif self.data_visitacao <= data_atual:
+            self.status = 'FINALIZADO'
+        db.session.commit()
 
 class Lance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -62,3 +96,12 @@ class Lance(db.Model):
     leilao_id = db.Column(db.Integer, db.ForeignKey('leilao.id'), nullable=False)
     produto_id = db.Column(db.Integer, db.ForeignKey('produto.id'), nullable=False)
 
+class LeilaoFinanceiro(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    conta_id = db.Column(db.Integer, db.ForeignKey('conta.id'), nullable=False)
+    leilao_id = db.Column(db.Integer, db.ForeignKey('leilao.id'), nullable=False)
+
+class TipoProduto(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    eletronico_veiculo = db.Column(db.Enum('Eletrônico', 'Veículo'), name='tipo_produto_enum')
+    descricao = db.Column(db.String(50), nullable=False)
