@@ -84,11 +84,21 @@ class Leilao(db.Model):
     def verificar_atualizar_status(self):
         data_atual = datetime.now()
 
+        if self.status == "FINALIZADO":
+            return
+
         if self.data_futura <= data_atual < self.data_visitacao:
             self.status = 'EM ANDAMENTO'
         elif self.data_visitacao <= data_atual:
             self.status = 'FINALIZADO'
 
+            for produto in self.produtos:
+                ultimo_lance = Lance.query.filter_by(produto_id=produto.id).order_by(Lance.data.desc()).first()
+                if ultimo_lance:
+                    venda = Venda(valor=ultimo_lance.valor, cliente_id=ultimo_lance.cliente_id, produto_id=produto.id, leilao_id=self.id)
+                    db.session.add(venda)
+                    produto.vendido = True
+            
             produtos_nao_vendidos = Produto.query.filter_by(leilao_id=self.id, vendido=False).all()
                
             proximo_leilao = Leilao.query.filter(Leilao.data_futura > data_atual).order_by(Leilao.data_futura).first()
