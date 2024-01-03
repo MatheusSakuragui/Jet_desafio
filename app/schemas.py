@@ -36,9 +36,12 @@ class VeiculoSchema(Schema):
     placa = fields.Str(required=True)
     ano = fields.Str(required=True)
     qtd_portas = fields.Str(required=True)
+    produto_id = fields.Int(required=True)
 
 class EletronicoSchema(Schema):
     id = fields.Int(dump_only=True)
+    voltagem = fields.Int(required=True)
+    produto_id = fields.Int(required=True)
     
 class LeilaoSchema(Schema):
     id = fields.Int(dump_only=True)

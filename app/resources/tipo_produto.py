@@ -10,7 +10,8 @@ class TipoProdutoResource(Resource):
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument('descricao', type=str, required=True, help='Descrição do produto não informada')
-        self.reqparse.add_argument('eletronico_veiculo', type=str, required=True, help='Tipo do produto não informado')
+        self.reqparse.add_argument('eletronico_veiculo', type=str, required=True, help='Tipo do produto não informada')
+
         super(TipoProdutoResource, self).__init__()
 
     def get(self, id):
