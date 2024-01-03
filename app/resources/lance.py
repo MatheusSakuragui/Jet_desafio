@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
-from app.models import Lance
-from app.schemas import LanceSchema
+from app.models import Lance, Produto
+from app.schemas import LanceSchema, ProdutoSchema
 from flask_jwt_extended import jwt_required, create_access_token
 from app.db import db
 from datetime import datetime
@@ -30,8 +30,16 @@ class LanceResource(Resource):
         lance.data = datetime.strptime(args['data'], '%Y-%m-%dT%H:%M:%S')
         db.session.add(lance)
         db.session.commit()
-        response_data = lance_schema.dump(lance)
+        id_produto  = args['produto_id'] 
+        #Atualizando o campo lance_adicional na tabela Produto 
+        produto_buscado = Produto.query.get_or_404(id_produto)
+        produto_schema = ProdutoSchema()
+        produto = produto_schema.dump(produto_buscado)
+        produto_buscado.lance_adicional = args['valor']
         
+        db.session.add(produto_buscado)
+        db.session.commit()
+        response_data = lance_schema.dump(lance)
         return response_data, 201
     
     
