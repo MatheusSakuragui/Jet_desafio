@@ -1,6 +1,8 @@
 from flask_restful import Resource, reqparse
 from app.models import Leilao
 from app.schemas import LeilaoSchema
+from app.utils.verificar_status import verificar_e_atualizar_status_leiloes
+from app.scheduler import scheduler
 from datetime import datetime
 from app.db import db
 
@@ -66,6 +68,7 @@ class LeilaoResource(Resource):
         db.session.commit()
         return {}, 201
     
+scheduler.add_job(id='verificar_e_atualizar_status_leiloes', func=verificar_e_atualizar_status_leiloes, trigger='interval', seconds=10)
 class LeilaoResourceLista(Resource):        
     def get(self):
         leilao = Leilao.query.all()
