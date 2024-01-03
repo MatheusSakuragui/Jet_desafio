@@ -21,8 +21,9 @@ class Produto(db.Model):
     lance_adicional = db.Column(db.Float(), nullable=False)
     vendido = db.Column(db.Boolean(), default=False, nullable=True)
     leilao_id = db.Column(db.Integer, db.ForeignKey('leilao.id'), nullable=False)
-   #tipo_produto_id = db.Column(db.Integer, db.ForeignKey('tipoproduto.id'), nullable=False)
+    tipo_produto_id = db.Column(db.Integer, db.ForeignKey('tipo_produto.id'), nullable=False)
     leilao = db.relationship('Leilao', backref=db.backref('produtos', lazy=True))
+    
 class Financeiro(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     banco = db.Column(db.String(50), nullable=False)
@@ -83,6 +84,5 @@ class LeilaoFinanceiro(db.Model):
 
 class TipoProduto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    descricao = db.Column(db.Enum(
-        'notebook'
-    ))
+    eletronico_veiculo = db.Column(db.Enum('Eletrônico', 'Veículo'), name='tipo_produto_enum')
+    descricao = db.Column(db.String(50), nullable=False)
