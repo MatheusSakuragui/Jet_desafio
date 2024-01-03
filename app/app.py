@@ -9,6 +9,10 @@ from app.resources.financeiro import FinanceiroResource
 from app.resources.conta import ContaResource
 from app.resources.cliente import ClienteResource, ClienteLogin
 from app.resources.leilao import LeilaoResource, LeilaoResourceLista
+from app.resources.leilao_financeiro import LeilaoFinanceiroResource
+from app.resources.tipo_produto import TipoProdutoResource
+
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
@@ -24,5 +28,7 @@ def create_app():
     api.add_resource(ClienteLogin, '/login')
     api.add_resource(LeilaoResource, '/leilao', '/leilao/<int:id>')
     api.add_resource(LeilaoResourceLista, '/listaleilao')
+    api.add_resource(LeilaoFinanceiroResource, '/leilao-financeiro', '/leilao-financeiro/<int:id>')
+    api.add_resource(TipoProdutoResource, '/tipo-produto', '/tipo-produto/<int:id>')
     
     return app
