@@ -16,8 +16,8 @@ class LeilaoResource(Resource):
     
     def get(self, id):
         leilao = Leilao.query.get_or_404(id)
-        schema = LeilaoSchema()
-        return schema.dump(leilao)
+        detalhes_leilao = leilao.detalhes_leilao()
+        return detalhes_leilao , 200
     
     def put(self, id):
         args = self.reqparse.parse_args()

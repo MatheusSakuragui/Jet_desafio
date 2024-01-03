@@ -10,6 +10,8 @@ class ProdutoResource(Resource):
         self.reqparse.add_argument('modelo', type=str, required=True, help='Modelo do produto não informado')
         self.reqparse.add_argument('descricao', type=str, required=True, help='Descrição do produto não informado')
         self.reqparse.add_argument('lance_inicial', type=float, required=True, help='Lance inicial do produto não informado')
+        # ! Não é obrigatório
+        self.reqparse.add_argument('leilao_id', type=int, required=True, help='Leilão do produto não informado')
         self.reqparse.add_argument('lance_adicional', type=float, required=True, help='Lance inicial do produto não informado')
         self.reqparse.add_argument('vendido', type=bool, default=False)
         super(ProdutoResource, self).__init__()

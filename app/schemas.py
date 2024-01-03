@@ -17,6 +17,7 @@ class ProdutoSchema(Schema):
     lance_inicial = fields.Float(required=True)
     lance_adicional = fields.Float(required=True)
     vendido = fields.Bool(default=False, required=False)
+    leilao_id = fields.Int(required=True)
 
 class FinanceiroSchema(Schema):
     id = fields.Int(dump_only=True)

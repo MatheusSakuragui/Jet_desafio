@@ -1,4 +1,5 @@
 from app.db import db
+from datetime import datetime
 
 class Cliente(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -20,8 +21,8 @@ class Produto(db.Model):
     lance_adicional = db.Column(db.Float(), nullable=False)
     vendido = db.Column(db.Boolean(), default=False, nullable=True)
     leilao_id = db.Column(db.Integer, db.ForeignKey('leilao.id'), nullable=False)
-    tipo_produto_id = db.Column(db.Integer, db.ForeignKey('tipoproduto.id'), nullable=False)
-
+   #tipo_produto_id = db.Column(db.Integer, db.ForeignKey('tipoproduto.id'), nullable=False)
+    leilao = db.relationship('Leilao', backref=db.backref('produtos', lazy=True))
 class Financeiro(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     banco = db.Column(db.String(50), nullable=False)
@@ -50,7 +51,30 @@ class Leilao(db.Model):
     detalhes = db.Column(db.String(120), nullable=False)
     qtd_produtos = db.Column(db.Integer, nullable=False)
     status = db.Column(db.Enum('EM ABERTO', 'EM ANDAMENTO','FINALIZADO', name='status_enum'), server_default='EM ABERTO', nullable=False)
+    
+    def detalhes_leilao(self):
+        produtos = Produto.query.filter_by(leilao_id=self.id).order_by(Produto.id).all()
 
+        detalhes_leilao = {
+            'id': self.id,
+            'data_futura': self.data_futura.strftime('%Y-%m-%dT%H:%M:%S'),
+            'data_visitacao': self.data_visitacao.strftime('%Y-%m-%dT%H:%M:%S'),
+            'detalhes': self.detalhes,
+            'qtd_produtos': self.qtd_produtos,
+            'status': self.status,
+            'produtos': [{
+                'dados_do_produto': {
+                    'marca': produto.marca,
+                    'modelo': produto.modelo,
+                    'descricao': produto.descricao,
+                    'lance_inicial': produto.lance_inicial,
+                    'lance_adicional': produto.lance_adicional,
+                    'vendido': produto.vendido,
+                }
+            } for produto in produtos]
+        }
+
+        return detalhes_leilao
 
 class LeilaoFinanceiro(db.Model):
     id = db.Column(db.Integer, primary_key=True)
