@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from app.db import db
+from datetime import datetime
 
 class Cliente(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -8,6 +9,7 @@ class Cliente(db.Model):
     telefone = db.Column(db.String(20), nullable=False)
     senha = db.Column(db.String(20), nullable=False)
     cpf = db.Column(db.String(11), unique=True, nullable=False)
+    lance = db.relationship('Lance', backref='cliente', lazy=True)
     
     def verificar_senha(self, senha):
         return self.senha == senha
@@ -29,4 +31,14 @@ class Leilao(db.Model):
     detalhes = db.Column(db.String(120), nullable=False)
     qtd_produtos = db.Column(db.Integer, nullable=False)
     status = db.Column(db.Enum('EM ABERTO', 'EM ANDAMENTO','FINALIZADO', name='status_enum'), server_default='EM ABERTO', nullable=False)
+    lance = db.relationship('Lance', backref='leilao', lazy=True)
 
+
+class Lance(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    data = db.Column(db.DateTime, default=datetime.utcnow)
+    valor = db.Column(db.Float, nullable=False)
+    cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id'), nullable=False)
+    leilao_id = db.Column(db.Integer, db.ForeignKey('leilao.id'), nullable=False)
+    # produto_id = db.Column(db.Integer, db.ForeignKey('produto.id'), nullable=False)
+    

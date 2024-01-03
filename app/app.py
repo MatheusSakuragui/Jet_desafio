@@ -6,6 +6,7 @@ from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from app.resources.cliente import ClienteResource, ClienteLogin
 from app.resources.leilao import LeilaoResource
+from app.resources.lance import LanceResource
 
 def create_app():
     app = Flask(__name__)
@@ -18,5 +19,6 @@ def create_app():
     api.add_resource(ClienteResource, '/clientes', '/clientes/<int:id>')
     api.add_resource(ClienteLogin, '/login')
     api.add_resource(LeilaoResource, '/leilao', '/leilao/<int:id>')
+    api.add_resource(LanceResource,'/lance','/lance/<int:id>')
     
     return app

@@ -24,3 +24,11 @@ class LeilaoSchema(Schema):
     detalhes = fields.Str(required=True)
     qtd_produtos = fields.Int(required=True)
     status = fields.Str()
+
+
+class LanceSchema(Schema):
+    id = fields.Int(dump_only=True)
+    data = fields.DateTime(required=True)
+    valor = fields.Float(required=True)
+    cliente_id = fields.Int(required=True)
+    leilao_id = fields.Int(required=True)
