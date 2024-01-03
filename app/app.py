@@ -4,7 +4,7 @@ from flask import Flask
 from app.config import Config
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
-from app.resources.produto import ProdutoResource
+from app.resources.produto import ProdutoResource, ProdutoResourceLista
 from app.resources.financeiro import FinanceiroResource
 from app.resources.conta import ContaResource
 from app.resources.cliente import ClienteResource, ClienteLogin
