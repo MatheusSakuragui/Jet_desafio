@@ -9,6 +9,7 @@ from app.resources.financeiro import FinanceiroResource
 from app.resources.conta import ContaResource
 from app.resources.cliente import ClienteResource, ClienteLogin
 from app.resources.leilao import LeilaoResource
+from app.resources.lance import LanceResource
 
 def create_app():
     app = Flask(__name__)
@@ -24,6 +25,7 @@ def create_app():
     api.add_resource(ContaResource, '/conta', '/conta/<int:id>')
     api.add_resource(ClienteLogin, '/login')
     api.add_resource(LeilaoResource, '/leilao', '/leilao/<int:id>')
+    api.add_resource(LanceResource,'/lance','/lance/<int:id>')
     
     with app.app_context():
         db.create_all()
