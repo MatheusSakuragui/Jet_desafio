@@ -60,5 +60,5 @@ class Lance(db.Model):
     valor = db.Column(db.Float, nullable=False)
     cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id'), nullable=False)
     leilao_id = db.Column(db.Integer, db.ForeignKey('leilao.id'), nullable=False)
-    # produto_id = db.Column(db.Integer, db.ForeignKey('produto.id'), nullable=False)
+    produto_id = db.Column(db.Integer, db.ForeignKey('produto.id'), nullable=False)
 

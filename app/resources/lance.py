@@ -12,7 +12,7 @@ class LanceResource(Resource):
         self.reqparse.add_argument('valor', type=str, required=True, help='Valor não informado')
         self.reqparse.add_argument('cliente_id', type=int, required=True, help='Cliente id não informado')
         self.reqparse.add_argument('leilao_id', type=int, required=True, help='Leilão não informado')
-        # self.reqparse.add_argument('produto', type=int, required=True, help='Produto não informado')
+        self.reqparse.add_argument('produto_id', type=int, required=True, help='Produto não informado')
         super(LanceResource, self).__init__()
     
     def get(self, id):
@@ -42,7 +42,7 @@ class LanceResource(Resource):
         lance.valor = args['valor']
         lance.cliente_id = args['cliente_id']
         lance.leilao_id = args['leilao_id']
-        # lance.produto_id = args['produto_id']
+        lance.produto_id = args['produto_id']
         lance.data = datetime.strptime(args['data'], '%Y-%m-%dT%H:%M:%S')
         db.session.add(lance)
         db.session.commit()

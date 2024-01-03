@@ -54,3 +54,4 @@ class LanceSchema(Schema):
     valor = fields.Float(required=True)
     cliente_id = fields.Int(required=True)
     leilao_id = fields.Int(required=True)
+    produto_id = fields.Int(required=True)
