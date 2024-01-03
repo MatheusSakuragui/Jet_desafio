@@ -1,6 +1,7 @@
 from flask import request
 from flask_restful import Resource, reqparse
-from .models import db, TipoProduto, TipoProdutoSchema
+from app.models import db, TipoProduto
+from app.schemas import TipoProdutoSchema
 
 tipo_produto_schema = TipoProdutoSchema()
 tipo_produtos_schema = TipoProdutoSchema(many=True)

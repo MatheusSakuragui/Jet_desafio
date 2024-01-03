@@ -11,6 +11,9 @@ from app.resources.cliente import ClienteResource, ClienteLogin
 from app.resources.leilao import LeilaoResource, LeilaoResourceLista
 from app.resources.leilao_financeiro import LeilaoFinanceiroResource
 from app.resources.tipo_produto import TipoProdutoResource
+from app.resources.eletronico import EletronicoResource
+from app.resources.veiculo import VeiculoResource
+from app.resources.lance import LanceResource
 from app.scheduler import scheduler
 
 def create_app():
@@ -30,6 +33,9 @@ def create_app():
     api.add_resource(LeilaoResourceLista, '/listaleilao')
     api.add_resource(LeilaoFinanceiroResource, '/leilao-financeiro', '/leilao-financeiro/<int:id>')
     api.add_resource(TipoProdutoResource, '/tipo-produto', '/tipo-produto/<int:id>')
+    api.add_resource(EletronicoResource, '/eletronico','/eletronico/<int:id>')
+    api.add_resource(VeiculoResource,'/veiculo','/veiculo/<int:id>')
+    api.add_resource(LanceResource,'/lance','/lance/<int:id>')
     
     scheduler.init_app(app)
     scheduler.start()
