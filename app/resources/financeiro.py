@@ -12,7 +12,8 @@ class FinanceiroResource(Resource):
     def get(self, id):
         financeiro = Financeiro.query.get_or_404(id)
         financeiro_schema = FinanceiroSchema()
-        return financeiro_schema(financeiro)
+        return financeiro_schema.dump(financeiro)
+
     
     def post(self):
         args = self.reqparse.parse_args()

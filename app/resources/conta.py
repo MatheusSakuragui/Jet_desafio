@@ -13,15 +13,12 @@ class ContaResource(Resource):
 
     def get(self, id):
         conta = Conta.query.get_or_404(id)
-        financeiro = Financeiro.query.get_or_404(id)
+        financeiro = Financeiro.query.get_or_404(conta.financeiro_id)
         return {
             'id':conta.id,
             'agencia':conta.agencia,
             'conta_corrente':conta.conta_corrente,
-            'financeiro':{
-                'id': financeiro.id,
-                'banco':financeiro.banco
-            }
+            'financeiro_id':financeiro.banco
         }
     
     def post(self):

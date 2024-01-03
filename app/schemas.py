@@ -17,13 +17,14 @@ class ProdutoSchema(Schema):
     lance_adicional = fields.Float(required=True)
     vendido = fields.Bool(default=False, required=False)
 
-class ContaSchema(Schema):
-    id = fields.Int(dump_only=True)
-    agencia = fields.Str(required=True)
-    conta_corrente = fields.Str(required=True)
-    financeiro_id = fields.Int(load_only=True)    
+from marshmallow import Schema, fields
 
 class FinanceiroSchema(Schema):
     id = fields.Int(dump_only=True)
     banco = fields.Str(required=True)
-    conta = fields.Nested('ContaSchema', many=True, exclude=('financeiro',))
+
+class ContaSchema(Schema):
+    id = fields.Int(dump_only=True)
+    agencia = fields.Str(required=True)
+    conta_corrente = fields.Str(required=True)
+    financeiro_id = fields.Int(required=True)

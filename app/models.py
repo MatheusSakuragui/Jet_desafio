@@ -19,12 +19,10 @@ class Produto(db.Model):
 
 class Financeiro(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    banco = db.Column(db.String(100), nullable=False)
-    conta = db.relationship('Conta', back_populates='financeiro', uselist=False)
+    banco = db.Column(db.String(50), nullable=False)
 
 class Conta(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     agencia = db.Column(db.String(20), nullable=False)
     conta_corrente = db.Column(db.String(20), nullable=False)
-    financeiro_id = db.Column(db.Integer, db.ForeignKey('financeiro.id', name='fk_conta_financeiro'), nullable=False)
-    financeiro = db.relationship('Financeiro', back_populates='conta')  
+    financeiro_id = db.Column(db.Integer, db.ForeignKey('financeiro.id'), nullable=False)
