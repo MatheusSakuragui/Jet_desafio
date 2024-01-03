@@ -1,7 +1,9 @@
 from flask_restful import Resource, reqparse
-from app.models import Produto
+from app.models import Produto, Leilao, TipoProduto
 from app.schemas import ProdutoSchema
 from app.db import db
+
+produto_schema = ProdutoSchema()
 
 class ProdutoResource(Resource):
     def __init__(self):
@@ -14,17 +16,31 @@ class ProdutoResource(Resource):
         self.reqparse.add_argument('leilao_id', type=int, required=True, help='Leilão do produto não informado')
         self.reqparse.add_argument('lance_adicional', type=float, required=True, help='Lance inicial do produto não informado')
         self.reqparse.add_argument('vendido', type=bool, default=False)
+        self.reqparse.add_argument('leilao_id', type=int, required=True, help='ID do Leilão não informado')
+        self.reqparse.add_argument('tipo_produto_id', type=int, required=True, help='ID do tipo do produto não informado')
         super(ProdutoResource, self).__init__()
     
     def get(self, id):
         produto = Produto.query.get_or_404(id)
-        schema = ProdutoSchema()
-
-        return schema.dump(produto)
+        leilao = Leilao.query.get_or_404(produto.leilao_id)
+        tipo_produto = TipoProduto.query.get_or_404(produto.tipo_produto_id)
+        return {
+            'id':produto.id,
+            'marca':produto.marca,
+            'modelo':produto.modelo,
+            'descricao':produto.descricao,
+            'lance_inicial':produto.lance_inicial,
+            'lance_adicional':produto.lance_adicional,
+            'vendido':produto.vendido,
+            'leilao_data':leilao.data_futura,
+            'leilao_detalhes':leilao.detalhes,
+            'leilao_status':leilao.status,
+            'tipo_produto_info':tipo_produto.eletronico_veiculo,
+            'tipo_produto_descricao':tipo_produto.descricao
+        }
     
     def post(self):
         args = self.reqparse.parse_args()
-        produto_schema = ProdutoSchema()
         erros = produto_schema.validate(args)
 
         if erros:
@@ -40,7 +56,6 @@ class ProdutoResource(Resource):
     def put(self, id):
         produto = Produto.query.get_or_404(id)
         args = self.reqparse.parse_args()
-        produto_schema = ProdutoSchema()
         erros = produto_schema.validate(args)
 
         if erros:
