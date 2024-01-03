@@ -1,3 +1,3 @@
-from flask_apscheduler import APScheduler
+from flask_scheduler import APScheduler
 
 scheduler = APScheduler()

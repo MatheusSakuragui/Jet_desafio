@@ -24,6 +24,8 @@ class Produto(db.Model):
     leilao_id = db.Column(db.Integer, db.ForeignKey('leilao.id'), nullable=False)
     tipo_produto_id = db.Column(db.Integer, db.ForeignKey('tipo_produto.id'), nullable=False)
     leilao = db.relationship('Leilao', backref=db.backref('produtos', lazy=True))
+    veiculo = db.relationship('Veiculo', backref=db.backref('produtos', lazy=True))
+    eletronico = db.relationship('Eletronico', backref=db.backref('produtos', lazy=True))
     
 class Financeiro(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -41,10 +43,12 @@ class Veiculos(db.Model):
     placa = db.Column(db.String(10), nullable=False, unique=True)
     ano = db.Column(db.String(4), nullable=False)
     qtd_portas = db.Column(db.Integer, nullable=False)
+    produto_id = db.Column(db.Integer, db.ForeignKey('produto.id'), nullable=False)
     
 class Eletronico(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     voltagem = db.Column(db.String(3), nullable=False)
+    produto_id = db.Column(db.Integer, db.ForeignKey('produto.id'), nullable=False)
 
 class Leilao(db.Model):
     id = db.Column(db.Integer, primary_key=True)
