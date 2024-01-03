@@ -53,7 +53,7 @@ class Leilao(db.Model):
     data_futura = db.Column(db.DateTime(80), nullable=False)
     data_visitacao = db.Column(db.DateTime(80), nullable=False)
     detalhes = db.Column(db.String(120), nullable=False)
-    qtd_produtos = db.Column(db.Integer, nullable=False)
+    qtd_produtos = db.Column(db.Integer, default=0, nullable=True)
     status = db.Column(db.Enum('EM ABERTO', 'EM ANDAMENTO','FINALIZADO', name='status_enum'), server_default='EM ABERTO', nullable=False)
     lance = db.relationship('Lance', backref='leilao', lazy=True)
     

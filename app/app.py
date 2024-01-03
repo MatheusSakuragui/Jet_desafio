@@ -11,6 +11,7 @@ from app.resources.cliente import ClienteResource, ClienteLogin
 from app.resources.leilao import LeilaoResource, LeilaoResourceLista
 from app.resources.leilao_financeiro import LeilaoFinanceiroResource
 from app.resources.tipo_produto import TipoProdutoResource
+from app.models import Leilao
 from app.scheduler import scheduler
 
 def create_app():
@@ -32,6 +33,15 @@ def create_app():
     api.add_resource(TipoProdutoResource, '/tipo-produto', '/tipo-produto/<int:id>')
     
     scheduler.init_app(app)
+
+    def report_leilao():
+        with app.app_context():
+            info_leilao = Leilao.detalhes_leilao(self=Leilao)
+            print(info_leilao)
+            
+
+
+    report_leilao()
     scheduler.start()
     
-    return app
+    return app  
