@@ -1,4 +1,3 @@
-from flask_sqlalchemy import SQLAlchemy
 from app.db import db
 from datetime import datetime
 
@@ -13,6 +12,26 @@ class Cliente(db.Model):
     
     def verificar_senha(self, senha):
         return self.senha == senha
+
+class Produto(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    marca = db.Column(db.String(20), nullable=False)
+    modelo = db.Column(db.String(20), nullable=False)
+    descricao = db.Column(db.String(120), nullable=False)
+    lance_inicial = db.Column(db.Float(), nullable=False)
+    lance_adicional = db.Column(db.Float(), nullable=False)
+    vendido = db.Column(db.Boolean(), default=False, nullable=True)
+
+class Financeiro(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    banco = db.Column(db.String(50), nullable=False)
+
+class Conta(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    agencia = db.Column(db.String(20), nullable=False)
+    conta_corrente = db.Column(db.String(20), nullable=False)
+    financeiro_id = db.Column(db.Integer, db.ForeignKey('financeiro.id'), nullable=False)
+
     
 class Veiculos(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -34,6 +53,7 @@ class Leilao(db.Model):
     lance = db.relationship('Lance', backref='leilao', lazy=True)
 
 
+
 class Lance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     data = db.Column(db.DateTime, default=datetime.utcnow)
@@ -41,4 +61,4 @@ class Lance(db.Model):
     cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id'), nullable=False)
     leilao_id = db.Column(db.Integer, db.ForeignKey('leilao.id'), nullable=False)
     # produto_id = db.Column(db.Integer, db.ForeignKey('produto.id'), nullable=False)
-    
+
