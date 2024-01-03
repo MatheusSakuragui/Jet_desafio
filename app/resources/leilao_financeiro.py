@@ -11,8 +11,8 @@ class LeilaoFinanceiroResource(Resource):
         self.reqparse.add_argument('leilao_id', type=int, required=True, help='ID do leilão não informado')
         super(LeilaoFinanceiroResource, self).__init__()
 
-    def get(self, leilao_financeiro_id):
-        leilao_financeiro = LeilaoFinanceiro.query.get_or_404(leilao_financeiro_id)
+    def get(self, id):
+        leilao_financeiro = LeilaoFinanceiro.query.get_or_404(id)
         return leilao_financeiro_schema.dump(leilao_financeiro)
 
     def post(self):
@@ -24,8 +24,8 @@ class LeilaoFinanceiroResource(Resource):
 
         return leilao_financeiro_schema.dump(leilao_financeiro), 201
 
-    def put(self, leilao_financeiro_id):
-        leilao_financeiro = LeilaoFinanceiro.query.get_or_404(leilao_financeiro_id)
+    def put(self, id):
+        leilao_financeiro = LeilaoFinanceiro.query.get_or_404(id)
         json_data = request.get_json()
         
         leilao_financeiro.conta_id = json_data['conta_id']
@@ -35,8 +35,8 @@ class LeilaoFinanceiroResource(Resource):
 
         return leilao_financeiro_schema.dump(leilao_financeiro)
 
-    def delete(self, leilao_financeiro_id):
-        leilao_financeiro = LeilaoFinanceiro.query.get_or_404(leilao_financeiro_id)
+    def delete(self, id):
+        leilao_financeiro = LeilaoFinanceiro.query.get_or_404(id)
         db.session.delete(leilao_financeiro)
         db.session.commit()
 
