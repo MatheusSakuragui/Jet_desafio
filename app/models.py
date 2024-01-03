@@ -13,6 +13,7 @@ class Cliente(db.Model):
     def verificar_senha(self, senha):
         return self.senha == senha
 
+ # ! Produtos não vendidos deverão ser associados a um leilão futuro
 class Produto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     marca = db.Column(db.String(20), nullable=False)
@@ -35,7 +36,7 @@ class Conta(db.Model):
     conta_corrente = db.Column(db.String(20), nullable=False)
     financeiro_id = db.Column(db.Integer, db.ForeignKey('financeiro.id'), nullable=False)
 
-    
+    # ! A decidir a maneira de como associar com Produto e colocar sua FK
 class Veiculos(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     placa = db.Column(db.String(10), nullable=False, unique=True)
@@ -46,6 +47,7 @@ class Eletronico(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     voltagem = db.Column(db.String(3), nullable=False)
 
+# ! Colocas as instituições financeiras no retorno
 class Leilao(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     data_futura = db.Column(db.DateTime(80), nullable=False)
