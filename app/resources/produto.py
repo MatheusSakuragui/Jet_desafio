@@ -2,6 +2,8 @@ from flask_restful import Resource, reqparse
 from app.models import Produto, Leilao, TipoProduto
 from app.schemas import ProdutoSchema
 from app.db import db
+from sqlalchemy import and_
+from datetime import datetime
 
 produto_schema = ProdutoSchema()
 
@@ -32,7 +34,7 @@ class ProdutoResource(Resource):
             'lance_inicial':produto.lance_inicial,
             'lance_adicional':produto.lance_adicional,
             'vendido':produto.vendido,
-            'leilao_data':leilao.data_futura,
+            'leilao_data':datetime.isoformat(leilao.data_futura),
             'leilao_detalhes':leilao.detalhes,
             'leilao_status':leilao.status,
             'tipo_produto_info':tipo_produto.eletronico_veiculo,
@@ -75,3 +77,51 @@ class ProdutoResource(Resource):
         db.session.commit()
         
         return {'message': 'Produto deletado com sucesso'}, 200
+    
+class ProdutoResourceLista(Resource):
+    def __init__(self) -> None:
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument('min', type=int)
+        self.reqparse.add_argument('max', type=int)
+        self.reqparse.add_argument('leilaoid', type=int)
+        self.reqparse.add_argument('tipoproduto', type=str)
+        super(ProdutoResourceLista).__init__()
+        
+    def get(self):
+        args = self.reqparse.parse_args()
+        
+        filters_list = []
+        for key, value in args.items():
+            if value is not None:
+                match(key):
+                    case 'min':
+                        filters_list.append(Produto.lance_inicial > value)
+                    case 'max':
+                        filters_list.append(Produto.lance_inicial < value)
+                    case 'leilaoid':
+                        filters_list.append(Produto.leilao_id == value)
+                    case 'tipoproduto':
+                        tipoproduto: TipoProduto = TipoProduto.query.filter_by(eletronico_veiculo=value).first()
+                        filters_list.append(Produto.tipo_produto_id == tipoproduto.id)
+                
+        ProdutosFiltrados = Produto.query.filter(and_(*filters_list))
+        
+        for produto in ProdutosFiltrados:
+            leilao = Leilao.query.get_or_404(produto.leilao_id)
+            tipo_produto = TipoProduto.query.get_or_404(produto.tipo_produto_id)
+            ProdutoRetorno = {
+                'id':produto.id,
+                'marca':produto.marca,
+                'modelo':produto.modelo,
+                'descricao':produto.descricao,
+                'lance_inicial':produto.lance_inicial,
+                'lance_adicional':produto.lance_adicional,
+                'vendido':produto.vendido,
+                'leilao_data':datetime.isoformat(leilao.data_futura),
+                'leilao_detalhes':leilao.detalhes,
+                'leilao_status':leilao.status,
+                'tipo_produto_info':tipo_produto.eletronico_veiculo,
+                'tipo_produto_descricao':tipo_produto.descricao
+            }
+    
+        return ProdutoRetorno
