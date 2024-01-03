@@ -11,7 +11,7 @@ from app.resources.cliente import ClienteResource, ClienteLogin
 from app.resources.leilao import LeilaoResource, LeilaoResourceLista
 from app.resources.leilao_financeiro import LeilaoFinanceiroResource
 from app.resources.tipo_produto import TipoProdutoResource
-
+from app.scheduler import scheduler
 
 def create_app():
     app = Flask(__name__)
@@ -30,5 +30,8 @@ def create_app():
     api.add_resource(LeilaoResourceLista, '/listaleilao')
     api.add_resource(LeilaoFinanceiroResource, '/leilao-financeiro', '/leilao-financeiro/<int:id>')
     api.add_resource(TipoProdutoResource, '/tipo-produto', '/tipo-produto/<int:id>')
+    
+    scheduler.init_app(app)
+    scheduler.start()
     
     return app

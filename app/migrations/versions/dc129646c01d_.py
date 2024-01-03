@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 3c309683de28
+Revision ID: dc129646c01d
 Revises: 
-Create Date: 2024-01-03 10:32:49.756442
+Create Date: 2024-01-03 12:10:51.012975
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '3c309683de28'
+revision = 'dc129646c01d'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -50,7 +50,8 @@ def upgrade():
     )
     op.create_table('tipo_produto',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('descricao', sa.Enum('notebook'), nullable=True),
+    sa.Column('tipo_produto_enum', sa.Enum('Eletrônico', 'Veículo'), nullable=True),
+    sa.Column('descricao', sa.String(length=50), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('veiculos',
@@ -78,7 +79,9 @@ def upgrade():
     sa.Column('lance_adicional', sa.Float(), nullable=False),
     sa.Column('vendido', sa.Boolean(), nullable=True),
     sa.Column('leilao_id', sa.Integer(), nullable=False),
+    sa.Column('tipo_produto_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['leilao_id'], ['leilao.id'], ),
+    sa.ForeignKeyConstraint(['tipo_produto_id'], ['tipo_produto.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('leilao_financeiro',
