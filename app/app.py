@@ -9,6 +9,8 @@ from app.resources.financeiro import FinanceiroResource
 from app.resources.conta import ContaResource
 from app.resources.cliente import ClienteResource, ClienteLogin
 from app.resources.leilao import LeilaoResource, LeilaoResourceLista
+from app.scheduler import scheduler
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
@@ -24,5 +26,8 @@ def create_app():
     api.add_resource(ClienteLogin, '/login')
     api.add_resource(LeilaoResource, '/leilao', '/leilao/<int:id>')
     api.add_resource(LeilaoResourceLista, '/listaleilao')
+    
+    scheduler.init_app(app)
+    scheduler.start()
     
     return app

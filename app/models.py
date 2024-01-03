@@ -53,6 +53,7 @@ class Leilao(db.Model):
     status = db.Column(db.Enum('EM ABERTO', 'EM ANDAMENTO','FINALIZADO', name='status_enum'), server_default='EM ABERTO', nullable=False)
     
     def detalhes_leilao(self):
+        
         produtos = Produto.query.filter_by(leilao_id=self.id).order_by(Produto.id).all()
 
         detalhes_leilao = {
@@ -75,7 +76,16 @@ class Leilao(db.Model):
         }
 
         return detalhes_leilao
+    def verificar_atualizar_status(self):
+        data_atual = datetime.now()
+        
+        if self.data_futura <= data_atual < self.data_visitacao:
+            self.status = 'EM ANDAMENTO'
+        elif self.data_visitacao <= data_atual:
+            self.status = 'FINALIZADO'
 
+        db.session.commit()
+        
 class LeilaoFinanceiro(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     conta_id = db.Column(db.Integer, db.ForeignKey('conta.id'), nullable=False)
