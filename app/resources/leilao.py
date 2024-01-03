@@ -11,12 +11,13 @@ class LeilaoResource(Resource):
         self.reqparse.add_argument('data_visitacao', type=str, required=True, help='Data de visitação não informada')
         self.reqparse.add_argument('detalhes', type=str, required=True, help='Detalhes não informados')
         self.reqparse.add_argument('qtd_produtos', type=str, required=True, help='Quantidade de produtos não informado')
+        self.reqparse.add_argument('status', type=str, required=False, default="EM ABERTO")
         super(LeilaoResource, self).__init__()
     
     def get(self, id):
         leilao = Leilao.query.get_or_404(id)
-        schema = LeilaoSchema()
-        return schema.dump(leilao)
+        detalhes_leilao = leilao.detalhes_leilao()
+        return detalhes_leilao , 200
     
     def put(self, id):
         args = self.reqparse.parse_args()
@@ -26,6 +27,8 @@ class LeilaoResource(Resource):
             return erros, 400
         
         leilao: Leilao = Leilao.query.get_or_404(id)
+        
+        print(args)
         
         for key, value in args.items():
             if value is not None:
@@ -62,3 +65,9 @@ class LeilaoResource(Resource):
         db.session.delete(leilao)
         db.session.commit()
         return {}, 201
+    
+class LeilaoResourceLista(Resource):        
+    def get(self):
+        leilao = Leilao.query.all()
+        schema = LeilaoSchema()
+        return schema.dump(leilao, many=True)
