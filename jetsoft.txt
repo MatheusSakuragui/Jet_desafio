@@ -4,11 +4,9 @@ Veiculo:
 	- placa
 	- ano
 	- qtd_portas
-	- FK_TipoVeiculo
 
 Eletronico:
 	- ID
-	- FK_TipoEletronico
 	- voltagem
 	- FK_Produto
 
@@ -64,5 +62,5 @@ Conta:
 
 LeilaoFinanceiro:
 	- ID
-	- FK_Financeiro
+	- FK_Conta
 	- FK_Leilao

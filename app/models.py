@@ -19,6 +19,8 @@ class Produto(db.Model):
     lance_inicial = db.Column(db.Float(), nullable=False)
     lance_adicional = db.Column(db.Float(), nullable=False)
     vendido = db.Column(db.Boolean(), default=False, nullable=True)
+    leilao_id = db.Column(db.Integer, db.ForeignKey('leilao.id'), nullable=False)
+    tipo_produto_id = db.Column(db.Integer, db.ForeignKey('tipoproduto.id'), nullable=False)
 
 class Financeiro(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -50,3 +52,13 @@ class Leilao(db.Model):
     status = db.Column(db.Enum('EM ABERTO', 'EM ANDAMENTO','FINALIZADO', name='status_enum'), server_default='EM ABERTO', nullable=False)
 
 
+class LeilaoFinanceiro(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    conta_id = db.Column(db.Integer, db.ForeignKey('conta.id'), nullable=False)
+    leilao_id = db.Column(db.Integer, db.ForeignKey('leilao.id'), nullable=False)
+
+class TipoProduto(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    descricao = db.Column(db.Enum(
+        'notebook'
+    ))
