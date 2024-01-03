@@ -65,3 +65,9 @@ class LeilaoResource(Resource):
         db.session.delete(leilao)
         db.session.commit()
         return {}, 201
+    
+class LeilaoResourceLista(Resource):        
+    def get(self):
+        leilao = Leilao.query.all()
+        schema = LeilaoSchema()
+        return schema.dump(leilao, many=True)
