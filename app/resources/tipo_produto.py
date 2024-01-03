@@ -20,7 +20,7 @@ class TipoProdutoResource(Resource):
 
     def post(self):
         args = self.reqparse.parse_args()
-        print(args)
+
         tipo_produto_schema = TipoProdutoSchema()
         erros = tipo_produto_schema.validate(args)
         if erros:

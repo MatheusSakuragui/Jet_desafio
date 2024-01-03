@@ -30,7 +30,6 @@ class LeilaoResource(Resource):
         
         leilao: Leilao = Leilao.query.get_or_404(id)
         
-        print(args)
         
         for key, value in args.items():
             if value is not None:
@@ -68,7 +67,7 @@ class LeilaoResource(Resource):
         db.session.commit()
         return {}, 201
     
-scheduler.add_job(id='verificar_e_atualizar_status_leiloes', func=verificar_e_atualizar_status_leiloes, trigger='interval', seconds=10)
+scheduler.add_job(id='verificar_e_atualizar_status_leiloes', func=verificar_e_atualizar_status_leiloes, trigger='interval', seconds=5)
 class LeilaoResourceLista(Resource):        
     def get(self):
         leilao = Leilao.query.all()

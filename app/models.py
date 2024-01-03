@@ -13,7 +13,7 @@ class Cliente(db.Model):
     def verificar_senha(self, senha):
         return self.senha == senha
 
- # ! Produtos não vendidos deverão ser associados a um leilão futuro
+# ! Produtos não vendidos deverão ser associados a um leilão futuro
 class Produto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     marca = db.Column(db.String(20), nullable=False)
@@ -36,7 +36,7 @@ class Conta(db.Model):
     conta_corrente = db.Column(db.String(20), nullable=False)
     financeiro_id = db.Column(db.Integer, db.ForeignKey('financeiro.id'), nullable=False)
 
-    # ! A decidir a maneira de como associar com Produto e colocar sua FK
+# ! A decidir a maneira de como associar com Produto e colocar sua FK
 class Veiculos(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     placa = db.Column(db.String(10), nullable=False, unique=True)
@@ -83,12 +83,21 @@ class Leilao(db.Model):
         return detalhes_leilao
     def verificar_atualizar_status(self):
         data_atual = datetime.now()
-        
+
         if self.data_futura <= data_atual < self.data_visitacao:
             self.status = 'EM ANDAMENTO'
         elif self.data_visitacao <= data_atual:
             self.status = 'FINALIZADO'
-        db.session.commit()
+
+            produtos_nao_vendidos = Produto.query.filter_by(leilao_id=self.id, vendido=False).all()
+               
+            proximo_leilao = Leilao.query.filter(Leilao.data_futura > data_atual).order_by(Leilao.data_futura).first()
+            
+            if proximo_leilao:
+                for produto in produtos_nao_vendidos:
+                    produto.leilao_id = proximo_leilao.id
+                    produto.vendido = False 
+                db.session.commit()
 
 class Lance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -97,6 +106,17 @@ class Lance(db.Model):
     cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id'), nullable=False)
     leilao_id = db.Column(db.Integer, db.ForeignKey('leilao.id'), nullable=False)
     produto_id = db.Column(db.Integer, db.ForeignKey('produto.id'), nullable=False)
+
+class Venda(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    data = db.Column(db.DateTime, default=datetime.utcnow)
+    valor = db.Column(db.Float, nullable=False)
+    cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id'), nullable=False)
+    produto_id = db.Column(db.Integer, db.ForeignKey('produto.id'), nullable=False)
+    leilao_id = db.Column(db.Integer, db.ForeignKey('leilao.id'), nullable=False)
+    cliente = db.relationship('Cliente', backref=db.backref('vendas', lazy=True))
+    produto = db.relationship('Produto', backref=db.backref('vendas', lazy=True))
+    leilao = db.relationship('Leilao', backref=db.backref('vendas', lazy=True))
 
 class LeilaoFinanceiro(db.Model):
     id = db.Column(db.Integer, primary_key=True)
