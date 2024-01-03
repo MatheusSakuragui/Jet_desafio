@@ -45,7 +45,7 @@ class LeilaoSchema(Schema):
     data_futura = fields.DateTime(required=True)
     data_visitacao = fields.DateTime(required=True)
     detalhes = fields.Str(required=True)
-    qtd_produtos = fields.Int(required=True)
+    qtd_produtos = fields.Int(required=False)
 
     status = fields.Str(required=False, default="EM ABERTO")
 

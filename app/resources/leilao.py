@@ -12,7 +12,7 @@ class LeilaoResource(Resource):
         self.reqparse.add_argument('data_futura', type=str, required=True, help='Data futura não informada')
         self.reqparse.add_argument('data_visitacao', type=str, required=True, help='Data de visitação não informada')
         self.reqparse.add_argument('detalhes', type=str, required=True, help='Detalhes não informados')
-        self.reqparse.add_argument('qtd_produtos', type=str, required=True, help='Quantidade de produtos não informado')
+        self.reqparse.add_argument('qtd_produtos', type=str, required=False, help='Quantidade de produtos não informado')
         self.reqparse.add_argument('status', type=str, required=False, default="EM ABERTO")
         super(LeilaoResource, self).__init__()
     

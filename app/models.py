@@ -60,13 +60,14 @@ class Leilao(db.Model):
     def detalhes_leilao(self):
         
         produtos = Produto.query.filter_by(leilao_id=self.id).order_by(Produto.id).all()
+        qtd_produtos = len(produtos)
 
         detalhes_leilao = {
             'id': self.id,
             'data_futura': self.data_futura.strftime('%Y-%m-%dT%H:%M:%S'),
             'data_visitacao': self.data_visitacao.strftime('%Y-%m-%dT%H:%M:%S'),
             'detalhes': self.detalhes,
-            'qtd_produtos': self.qtd_produtos,
+            'qtd_produtos': qtd_produtos,
             'status': self.status,
             'produtos': [{
                 'dados_do_produto': {
@@ -81,6 +82,7 @@ class Leilao(db.Model):
         }
 
         return detalhes_leilao
+    
     def verificar_atualizar_status(self):
         data_atual = datetime.now()
         
@@ -89,6 +91,7 @@ class Leilao(db.Model):
         elif self.data_visitacao <= data_atual:
             self.status = 'FINALIZADO'
         db.session.commit()
+        
 
 class Lance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
