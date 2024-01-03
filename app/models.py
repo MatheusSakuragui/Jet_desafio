@@ -9,6 +9,16 @@ class Cliente(db.Model):
     senha = db.Column(db.String(20), nullable=False)
     cpf = db.Column(db.String(11), unique=True, nullable=False)
     
+class Veiculos(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    placa = db.Column(db.String(10), nullable=False, unique=True)
+    ano = db.Column(db.String(4), nullable=False)
+    qtd_portas = db.Column(db.Integer, nullable=False)
+    
+class Eletronico(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    voltagem = db.Column(db.String(3), nullable=False)
+
     def verificar_senha(self, senha):
         return self.senha == senha
     
@@ -19,3 +29,4 @@ class Leilao(db.Model):
     detalhes = db.Column(db.String(120), nullable=False)
     qtd_produtos = db.Column(db.Integer, nullable=False)
     status = db.Column(db.Enum('EM ABERTO', 'EM ANDAMENTO','FINALIZADO', name='status_enum'), server_default='EM ABERTO', nullable=False)
+

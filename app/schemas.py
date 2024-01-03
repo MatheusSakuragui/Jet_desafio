@@ -8,6 +8,15 @@ class ClienteSchema(Schema):
     telefone = fields.Str(required=True)
     cpf = fields.Str(required=True)
     
+class VeiculoSchema(Schema):
+    id = fields.Int(dump_only=True)
+    placa = fields.Str(required=True)
+    ano = fields.Str(required=True)
+    qtd_portas = fields.Str(required=True)
+
+class EletronicoSchema(Schema):
+    id = fields.Int(dump_only=True)
+    
 class LeilaoSchema(Schema):
     id = fields.Int(dump_only=True)
     data_futura = fields.DateTime(required=True)
