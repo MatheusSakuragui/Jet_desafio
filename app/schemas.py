@@ -17,6 +17,8 @@ class ProdutoSchema(Schema):
     lance_inicial = fields.Float(required=True)
     lance_adicional = fields.Float(required=True)
     vendido = fields.Bool(default=False, required=False)
+    leilao_id = fields.Int(required=True)
+    tipo_produto_id = fields.Int(required=True)
 
 class FinanceiroSchema(Schema):
     id = fields.Int(dump_only=True)
@@ -44,9 +46,8 @@ class LeilaoSchema(Schema):
     data_visitacao = fields.DateTime(required=True)
     detalhes = fields.Str(required=True)
     qtd_produtos = fields.Int(required=True)
+
     status = fields.Str(required=False, default="EM ABERTO")
-
-
 
 class LanceSchema(Schema):
     id = fields.Int(dump_only=True)
@@ -55,3 +56,14 @@ class LanceSchema(Schema):
     cliente_id = fields.Int(required=True)
     leilao_id = fields.Int(required=True)
     produto_id = fields.Int(required=True)
+
+class LeilaoFinanceiroSchema(Schema):
+    id = fields.Int(dump_only=True)
+    conta_id = fields.Int(required=True)
+    leilao_id = fields.Int(required=True)
+
+class TipoProdutoSchema(Schema):
+    id = fields.Int(dump_only=True)
+    eletronico_veiculo = fields.Str(required=True)
+    descricao = fields.Str(required=True)
+
