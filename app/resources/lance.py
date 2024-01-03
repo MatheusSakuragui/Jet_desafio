@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
 from app.models import Lance, Produto
-from app.schemas import LanceSchema,ProdutoSchema
+from app.schemas import LanceSchema, ProdutoSchema
 from flask_jwt_extended import jwt_required, create_access_token
 from app.db import db
 from datetime import datetime

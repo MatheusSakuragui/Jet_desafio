@@ -1,6 +1,7 @@
 from flask import request
 from flask_restful import Resource
-from .models import db, LeilaoFinanceiro, LeilaoFinanceiroSchema
+from app.models import db, LeilaoFinanceiro
+from app.schemas import LeilaoFinanceiroSchema
 
 leilao_financeiro_schema = LeilaoFinanceiroSchema()
 leilao_financeiros_schema = LeilaoFinanceiroSchema(many=True)
