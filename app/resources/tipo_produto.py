@@ -14,31 +14,24 @@ class TipoProdutoResource(Resource):
 
         super(TipoProdutoResource, self).__init__()
 
-
     def get(self, id):
         tipo_produto = TipoProduto.query.get_or_404(id)
         return tipo_produto_schema.dump(tipo_produto)
 
     def post(self):
         args = self.reqparse.parse_args()
-        print(args)
+
         tipo_produto_schema = TipoProdutoSchema()
         erros = tipo_produto_schema.validate(args)
+        
         if erros:
             return erros, 400
+        
         tipo_produto = TipoProduto(**args)
         db.session.add(tipo_produto)
         db.session.commit()
         return tipo_produto_schema.dump(tipo_produto)
-        
-        # json_data = request.get_json()
-        # tipo_produto = tipo_produto_schema.load(json_data)
-        
-        # db.session.add(tipo_produto)
-        # db.session.commit()
-
-        # return tipo_produto_schema.dump(tipo_produto), 201
-
+    
     def put(self, id):
         tipo_produto = TipoProduto.query.get_or_404(id)
         json_data = request.get_json()
