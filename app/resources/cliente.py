@@ -3,6 +3,7 @@ from app.models import Cliente
 from app.schemas import ClienteSchema
 from flask_jwt_extended import jwt_required, create_access_token
 from app.db import db
+from app.swaggerdocs.clienteswagger import SWAGGER_DOCS
 
 class ClienteResource(Resource):
     def __init__(self):
@@ -53,6 +54,11 @@ class ClienteResource(Resource):
         db.session.delete(cliente)
         db.session.commit()
         return None, 204
+ 
+ClienteResource.get.__doc__ = SWAGGER_DOCS["GET"]
+ClienteResource.post.__doc__ = SWAGGER_DOCS["POST"]
+ClienteResource.put.__doc__ = SWAGGER_DOCS["PUT"]
+ClienteResource.delete.__doc__ = SWAGGER_DOCS["DELETE"] 
     
 class ClienteLogin(Resource):
     def __init__(self):

@@ -4,6 +4,7 @@ from flask import Flask
 from app.config import Config
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
+from flasgger import Swagger
 from app.resources.produto import ProdutoResource, ProdutoResourceLista
 from app.resources.financeiro import FinanceiroResource
 from app.resources.conta import ContaResource
@@ -26,6 +27,7 @@ def create_app():
     db.init_app(app)
     
     api = Api(app)
+    swagger = Swagger(app)
     api.add_resource(ClienteResource, '/clientes', '/clientes/<int:id>')
     api.add_resource(ProdutoResource, '/produtos', '/produtos/<int:id>')
     api.add_resource(FinanceiroResource, '/financeiro', '/financeiro/<int:id>')
@@ -39,6 +41,7 @@ def create_app():
     api.add_resource(LanceResource,'/lance','/lance/<int:id>')
     api.add_resource(LanceResourceLista, '/historicolance', '/historicolance/<int:id>')
     api.add_resource(LeilaoDETResource,'/leilaoDET','/leilaoDET/<int:id>')
+    
     scheduler.init_app(app)
     scheduler.start()
     
