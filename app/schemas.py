@@ -11,6 +11,7 @@ class ClienteSchema(Schema):
 
 class ProdutoSchema(Schema):
     id = fields.Int(dump_only=True)
+    nome = fields.Str(required=True)
     marca = fields.Str(required=True)
     modelo = fields.Str(required=True)
     descricao = fields.Str(required=True)

@@ -10,6 +10,7 @@ produto_schema = ProdutoSchema()
 class ProdutoResource(Resource):
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument('nome', type=str, required=True, help='Nome do produto não informado')
         self.reqparse.add_argument('marca', type=str, required=True, help='Marca do produto não informado')
         self.reqparse.add_argument('modelo', type=str, required=True, help='Modelo do produto não informado')
         self.reqparse.add_argument('descricao', type=str, required=True, help='Descrição do produto não informado')
