@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from "react"; import { Box, Tab, Tabs, TextField, Button, MenuItem, Select, InputLabel, FormControl } from "@mui/material";
-import { format, set } from 'date-fns';
+import { format } from 'date-fns';
 import axios from "axios";
 
 export default function AdmPage() {
     const [value, setValue] = useState(0);
-    const [leiloes, setLeiloes] = useState([]); 
-    const [refresh, setRefresh] = useState(false); 
+    const [leiloes, setLeiloes] = useState([]);
+    const [tiposProduto, setTiposProduto] = useState([]);
+    const [refresh, setRefresh] = useState(false);
+
     const [formDataLeilao, setFormDataLeilao] = useState({
         nome: "",
         detalhes: "",
         dataInicio: "",
         dataFim: "",
     });
+
     const [formDataProduto, setFormDataProduto] = useState({
         nome: "",
         marca: "",
@@ -20,6 +23,11 @@ export default function AdmPage() {
         lanceInicial: "",
         leilaoId: "",
         tipoProdutoId: "",
+    });
+
+    const [formDataTipoProduto, setFormDataTipoProduto] = useState({
+        eletronico_veiculo: "",
+        descricao: "",
     });
 
     function a11yProps(index) {
@@ -37,6 +45,13 @@ export default function AdmPage() {
         }).catch((error) => {
             console.log(error);
         });
+        
+        axios.get("http://localhost:5000/listatipo-produto").then((response) => {
+            setTiposProduto(response.data);
+            setRefresh(false);
+        }).catch((error) => {
+            console.log(error);
+        })
     }, [refresh]);
 
 
@@ -77,9 +92,24 @@ export default function AdmPage() {
     const handleSubmitProduto = (event) => {
         event.preventDefault();
 
-        // ... (mesmo código que você já tem)
+        const body = {
+            nome: formDataProduto.nome,
+            marca: formDataProduto.marca,
+            modelo: formDataProduto.modelo,
+            descricao: formDataProduto.descricao,
+            lance_inicial: formDataProduto.lanceInicial,
+            lance_adicional: 0,
+            leilao_id: formDataProduto.leilaoId,
+            tipo_produto_id: formDataProduto.tipoProdutoId,
+        };
+        
+        axios.post("http://localhost:5000/produtos", body).then((response) => {
+            console.log(response);
+            setRefresh(true);
+        }).catch((error) => {
+            console.log(error);
+        })
 
-        // Limpar os campos do formulário de produto
         setFormDataProduto({
             nome: "",
             marca: "",
@@ -89,10 +119,29 @@ export default function AdmPage() {
             leilaoId: "",
             tipoProdutoId: "",
         });
-        // Exibir alerta
+
         alert("Produto cadastrado com sucesso!");
     };
 
+    const handleSubmitTipoProduto = (event) => {
+        event.preventDefault();
+        const body = {
+            eletronico_veiculo: formDataTipoProduto.eletronico_veiculo,
+            descricao: formDataTipoProduto.descricao,
+        }
+        axios.post("http://localhost:5000/tipo-produto", body).then((response) => {
+            console.log(response);
+            setRefresh(true);
+        }).catch((error) => {
+            console.log(error);
+        })
+     
+        setFormDataTipoProduto({
+            eletronico_veiculo: "",
+            descricao: "",
+        });
+        alert("Tipo de produto cadastrado com sucesso!");
+    };
 
     return (
         <Box sx={{ marginTop: 10, marginLeft: 5, width: "80%" }}>
@@ -105,7 +154,7 @@ export default function AdmPage() {
             >
                 <Tab label="Cadastro de Leilão" {...a11yProps(0)} />
                 <Tab label="Cadastro Produto" {...a11yProps(1)} />
-                <Tab label="Mais um Tab" {...a11yProps(2)} />
+                <Tab label="Cadastro Tipo do Produto" {...a11yProps(2)} />
             </Tabs>
 
 
@@ -226,11 +275,11 @@ export default function AdmPage() {
                                 onChange={(e) => setFormDataProduto({ ...formDataProduto, leilaoId: e.target.value })}
                             >
 
-                                {leiloes.map((leilao) => (
-                                    <MenuItem key={leilao.id} value={leilao.id}>
-                                        {leilao.nome}
+                                {leiloes.length > 0 ? leiloes?.map((leilao) => (
+                                    <MenuItem key={leilao?.id} value={leilao?.id}>
+                                        {leilao?.nome}
                                     </MenuItem>
-                                ))}
+                                )) : <MenuItem value={0}>Nenhum leilão cadastrado</MenuItem>}
                             </Select>
                         </FormControl>
                         <FormControl fullWidth variant="outlined" margin="normal">
@@ -241,11 +290,40 @@ export default function AdmPage() {
                                 value={formDataProduto.tipoProdutoId}
                                 onChange={(e) => setFormDataProduto({ ...formDataProduto, tipoProdutoId: e.target.value })}
                             >
-                                {/* Opções do select para tipo de produto */}
+                                {tiposProduto.length > 0 ? tiposProduto?.map((tipoProduto) => (
+                                    <MenuItem key={tipoProduto?.id} value={tipoProduto?.id}>
+                                        {tipoProduto?.descricao}
+                                    </MenuItem>
+                                )) : <MenuItem value={0}>Nenhum tipo de produto cadastrado</MenuItem>}
                             </Select>
                         </FormControl>
                         <Button variant="contained" color="primary" type="submit">
                             Cadastrar Produto
+                        </Button>
+                    </Box>
+                </Box>
+            </Box>
+
+            <Box role="tabpanel" hidden={value !== 2} id={`simple-tabpanel-${2}`}>
+                <Box sx={{ p: 3 }}>
+                    <Box component="form" onSubmit={handleSubmitTipoProduto}>
+                        {/* Campos do formulário de tipo de produto */}
+                        <FormControl fullWidth variant="outlined" margin="normal">
+                            <InputLabel id="tipo">Eletrônico/Veículo</InputLabel>
+                            <Select
+                                labelId="eletronico_veiculo"
+                                label="eletronico_veiculo"
+                                value={formDataTipoProduto.eletronico_veiculo}
+                                onChange={(e) => setFormDataTipoProduto({ ...formDataTipoProduto, eletronico_veiculo: e.target.value })}
+                            >
+                                <MenuItem value="Eletrônico">Eletrônico</MenuItem>
+                                <MenuItem value="Veículo">Veículo</MenuItem>
+                            </Select>
+                            <TextField name="descricao" label="Descrição" fullWidth margin="normal" variant="outlined" value={formDataTipoProduto.descricao} onChange={(e) => setFormDataTipoProduto({ ...formDataTipoProduto, descricao: e.target.value })} />
+                        </FormControl>
+
+                        <Button variant="contained" color="primary" type="submit">
+                            Cadastrar Tipo de Produto
                         </Button>
                     </Box>
                 </Box>

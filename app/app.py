@@ -9,7 +9,7 @@ from app.resources.financeiro import FinanceiroResource
 from app.resources.conta import ContaResource
 from app.resources.cliente import ClienteResource, ClienteLogin
 from app.resources.leilao import LeilaoResource, LeilaoResourceLista
-from app.resources.tipo_produto import TipoProdutoResource
+from app.resources.tipo_produto import TipoProdutoResource, TipoProdutoResourceLista
 from app.resources.eletronico import EletronicoResource
 from app.resources.veiculo import VeiculoResource
 from app.resources.lance import LanceResource, LanceResourceLista
@@ -34,6 +34,7 @@ def create_app():
     api.add_resource(LeilaoResource, '/leilao', '/leilao/<int:id>')
     api.add_resource(LeilaoResourceLista, '/listaleilao')
     api.add_resource(TipoProdutoResource, '/tipo-produto', '/tipo-produto/<int:id>')
+    api.add_resource(TipoProdutoResourceLista, '/listatipo-produto')
     api.add_resource(EletronicoResource, '/eletronico','/eletronico/<int:id>')
     api.add_resource(VeiculoResource,'/veiculo','/veiculo/<int:id>')
     api.add_resource(LanceResource,'/lance','/lance/<int:id>')
