@@ -58,6 +58,7 @@ class Eletronico(db.Model):
 # ! Colocas as instituições financeiras no retorno
 class Leilao(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(80), nullable=False)
     data_futura = db.Column(db.DateTime(80), nullable=False)
     data_visitacao = db.Column(db.DateTime(80), nullable=False)
     detalhes = db.Column(db.String(120), nullable=False)
@@ -71,6 +72,7 @@ class Leilao(db.Model):
 
         detalhes_leilao = {
             'id': self.id,
+            'nome': self.nome,
             'data_futura': self.data_futura.strftime('%Y-%m-%dT%H:%M:%S'),
             'data_visitacao': self.data_visitacao.strftime('%Y-%m-%dT%H:%M:%S'),
             'detalhes': self.detalhes,
