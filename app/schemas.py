@@ -42,6 +42,9 @@ class EletronicoSchema(Schema):
     id = fields.Int(dump_only=True)
     voltagem = fields.Int(required=True)
     produto_id = fields.Int(required=True)
+
+class LeilaoFinanceiroSchema(Schema):
+    id = fields.Integer(required=False)
     
 class LeilaoSchema(Schema):
     id = fields.Int(dump_only=True)
@@ -49,8 +52,9 @@ class LeilaoSchema(Schema):
     data_visitacao = fields.DateTime(required=True)
     detalhes = fields.Str(required=True)
     qtd_produtos = fields.Int(required=True)
-
     status = fields.Str(required=False, default="EM ABERTO")
+    conta = fields.List(fields.Nested(LeilaoFinanceiroSchema), required=False)
+
 
 class LanceSchema(Schema):
     id = fields.Int(dump_only=True)
@@ -59,11 +63,6 @@ class LanceSchema(Schema):
     cliente_id = fields.Int(required=True)
     leilao_id = fields.Int(required=True)
     produto_id = fields.Int(required=True)
-
-class LeilaoFinanceiroSchema(Schema):
-    id = fields.Int(dump_only=True)
-    conta_id = fields.Int(required=True)
-    leilao_id = fields.Int(required=True)
 
 class TipoProdutoSchema(Schema):
     id = fields.Int(dump_only=True)

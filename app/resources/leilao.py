@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse
-from app.models import Leilao
+from app.models import Leilao, Conta
 from app.schemas import LeilaoSchema
 from app.utils.verificar_status import verificar_e_atualizar_status_leiloes
 from app.scheduler import scheduler
@@ -14,6 +14,7 @@ class LeilaoResource(Resource):
         self.reqparse.add_argument('detalhes', type=str, required=True, help='Detalhes não informados')
         self.reqparse.add_argument('qtd_produtos', type=str, required=True, help='Quantidade de produtos não informado')
         self.reqparse.add_argument('status', type=str, required=False, default="EM ABERTO")
+        self.reqparse.add_argument('conta', type=list, location='json', default=[])
         super(LeilaoResource, self).__init__()
     
     def get(self, id):
@@ -23,6 +24,7 @@ class LeilaoResource(Resource):
     
     def put(self, id):
         args = self.reqparse.parse_args()
+        print(args)
         leilao_schema = LeilaoSchema()
         erros = leilao_schema.validate(args)
         if erros:
@@ -30,7 +32,7 @@ class LeilaoResource(Resource):
         
         leilao: Leilao = Leilao.query.get_or_404(id)
         
-        
+        leilaofinanceiroargs = args.pop('conta', None)
         for key, value in args.items():
             if value is not None:
                 setattr(leilao, key, value)
@@ -38,8 +40,15 @@ class LeilaoResource(Resource):
         leilao.data_futura = datetime.strptime(args['data_futura'], '%Y-%m-%dT%H:%M:%S')
         leilao.data_visitacao = datetime.strptime(args['data_visitacao'], '%Y-%m-%dT%H:%M:%S')
         
-        db.session.add(leilao)
-        db.session.commit()
+        if leilaofinanceiroargs:
+            leilao.conta.clear()
+            for conta in leilaofinanceiroargs:
+                new_conta = Conta.query.get(conta['id'])
+                leilao.conta.append(new_conta)
+        
+        with db.session.no_autoflush:
+            db.session.add(leilao)
+            db.session.commit()
         
         response_data = leilao_schema.dump(leilao)
         return response_data, 201
@@ -51,12 +60,18 @@ class LeilaoResource(Resource):
         if erros:
             return erros, 400
         
+        leilaofinanceiroargs = args.pop('conta', None)
         leilao = Leilao(**args)
         leilao.data_futura = datetime.strptime(args['data_futura'], '%Y-%m-%dT%H:%M:%S')
         leilao.data_visitacao = datetime.strptime(args['data_visitacao'], '%Y-%m-%dT%H:%M:%S')
         
-        db.session.add(leilao)
-        db.session.commit()
+        for conta in leilaofinanceiroargs:
+            new_conta = Conta.query.get(conta['id'])
+            leilao.conta.append(new_conta)
+        
+        with db.session.no_autoflush:
+            db.session.add(leilao)
+            db.session.commit()
         
         response_data = leilao_schema.dump(leilao)
         return response_data, 201

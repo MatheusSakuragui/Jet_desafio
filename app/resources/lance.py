@@ -39,9 +39,10 @@ class LanceResource(Resource):
         maior_lance_query = db.session.query(func.max(Lance.valor)).filter(Lance.produto_id == id_produto)
         
         maior_lance = maior_lance_query.scalar()
-        print(maior_lance)
-        if lance.valor <= maior_lance:
-            return "O lance precisa ser maior que os lances já feitos", 400
+        
+        if maior_lance:
+            if lance.valor <= maior_lance:
+                return "O lance precisa ser maior que os lances já feitos", 400
         
         db.session.add(lance)
         db.session.commit()

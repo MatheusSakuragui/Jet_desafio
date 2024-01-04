@@ -40,6 +40,7 @@ class Conta(db.Model):
     agencia = db.Column(db.String(20), nullable=False)
     conta_corrente = db.Column(db.String(20), nullable=False)
     financeiro_id = db.Column(db.Integer, db.ForeignKey('financeiro.id'), nullable=False)
+    financeiro = db.relationship('Financeiro', backref='conta', lazy=True)
 
 # ! A decidir a maneira de como associar com Produto e colocar sua FK
 class Veiculos(db.Model):
@@ -54,7 +55,12 @@ class Eletronico(db.Model):
     voltagem = db.Column(db.String(3), nullable=False)
     produto_id = db.Column(db.Integer, db.ForeignKey('produto.id'), nullable=False)
 
-
+class LeilaoFinanceiro(db.Model):
+    __tablename__ = 'leilao_financeiro'
+    id = db.Column(db.Integer, primary_key=True)
+    conta_id = db.Column(db.Integer, db.ForeignKey('conta.id'), nullable=False)
+    leilao_id = db.Column(db.Integer, db.ForeignKey('leilao.id'), nullable=False)
+    
 # ! Colocas as instituições financeiras no retorno
 class Leilao(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -64,11 +70,14 @@ class Leilao(db.Model):
     qtd_produtos = db.Column(db.Integer, nullable=False)
     status = db.Column(db.Enum('EM ABERTO', 'EM ANDAMENTO','FINALIZADO', name='status_enum'), server_default='EM ABERTO', nullable=False)
     lance = db.relationship('Lance', backref='leilao', lazy=True)
+    conta = db.relationship('Conta', secondary=LeilaoFinanceiro.__table__, backref='Leilao', lazy=True)
     
-    def detalhes_leilao(self):
+    def detalhes_leilao(self) -> dict:
         
         produtos = Produto.query.filter_by(leilao_id=self.id).order_by(Produto.id).all()
-
+        
+        # financeiro = Financeiro.id
+        
         detalhes_leilao = {
             'id': self.id,
             'data_futura': self.data_futura.strftime('%Y-%m-%dT%H:%M:%S'),
@@ -77,18 +86,20 @@ class Leilao(db.Model):
             'qtd_produtos': self.qtd_produtos,
             'status': self.status,
             'produtos': [{
-                'dados_do_produto': {
-                    'marca': produto.marca,
-                    'modelo': produto.modelo,
-                    'descricao': produto.descricao,
-                    'lance_inicial': produto.lance_inicial,
-                    'lance_adicional': produto.lance_adicional,
-                    'vendido': produto.vendido,
-                }
-            } for produto in produtos]
+                'id': produto.id,
+                'marca': produto.marca,
+                'modelo': produto.modelo,
+                'descricao': produto.descricao,
+                'lance_inicial': produto.lance_inicial,
+                'lance_adicional': produto.lance_adicional,
+                'vendido': produto.vendido
+            } for produto in produtos],
+            "Instituições financeiras": list(set(conta.financeiro.banco for conta in self.conta))
         }
 
+
         return detalhes_leilao
+    
     def verificar_atualizar_status(self):
         data_atual = datetime.now()
         if self.status == "FINALIZADO":
@@ -134,11 +145,6 @@ class Venda(db.Model):
     cliente = db.relationship('Cliente', backref=db.backref('vendas', lazy=True))
     produto = db.relationship('Produto', backref=db.backref('vendas', lazy=True))
     leilao = db.relationship('Leilao', backref=db.backref('vendas', lazy=True))
-
-class LeilaoFinanceiro(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    conta_id = db.Column(db.Integer, db.ForeignKey('conta.id'), nullable=False)
-    leilao_id = db.Column(db.Integer, db.ForeignKey('leilao.id'), nullable=False)
 
 class TipoProduto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
