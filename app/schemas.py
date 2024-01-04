@@ -48,6 +48,7 @@ class LeilaoFinanceiroSchema(Schema):
     
 class LeilaoSchema(Schema):
     id = fields.Int(dump_only=True)
+    nome = fields.Str(required=True)
     data_futura = fields.DateTime(required=True)
     data_visitacao = fields.DateTime(required=True)
     detalhes = fields.Str(required=True)

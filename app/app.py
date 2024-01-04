@@ -15,10 +15,12 @@ from app.resources.veiculo import VeiculoResource
 from app.resources.lance import LanceResource, LanceResourceLista
 from app.resources.leilaoDET import LeilaoDETResource
 from app.scheduler import scheduler
+from flask_cors import CORS
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    CORS(app)
     JWTManager(app)
     Migrate(app, db)
     db.init_app(app)

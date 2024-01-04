@@ -9,6 +9,7 @@ from app.db import db
 class LeilaoResource(Resource):
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument('nome', type=str, required=True, help='Nome não informado')
         self.reqparse.add_argument('data_futura', type=str, required=True, help='Data futura não informada')
         self.reqparse.add_argument('data_visitacao', type=str, required=True, help='Data de visitação não informada')
         self.reqparse.add_argument('detalhes', type=str, required=True, help='Detalhes não informados')
