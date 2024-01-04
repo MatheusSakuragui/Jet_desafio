@@ -67,7 +67,7 @@ class LeilaoResource(Resource):
         db.session.commit()
         return {}, 201
     
-scheduler.add_job(id='verificar_e_atualizar_status_leiloes', func=verificar_e_atualizar_status_leiloes, trigger='interval', seconds=120)
+scheduler.add_job(id='verificar_e_atualizar_status_leiloes', func=verificar_e_atualizar_status_leiloes, trigger='interval', seconds=10)
 class LeilaoResourceLista(Resource):        
     def get(self):
         leilao = Leilao.query.all()

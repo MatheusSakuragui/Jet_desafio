@@ -1,4 +1,3 @@
-from enum import Enum
 class Config:
     FLASK_APP="run.py"
     FLASK_ENV="env"

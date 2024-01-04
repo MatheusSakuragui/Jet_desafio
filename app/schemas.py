@@ -1,5 +1,5 @@
 from marshmallow import Schema, fields
-
+from datetime import datetime
 class ClienteSchema(Schema):
     id = fields.Int(dump_only=True)
     nome = fields.Str(required=True)
@@ -54,7 +54,7 @@ class LeilaoSchema(Schema):
 
 class LanceSchema(Schema):
     id = fields.Int(dump_only=True)
-    data = fields.DateTime(required=True)
+    data = fields.DateTime(required=False, default=datetime.utcnow().isoformat())
     valor = fields.Float(required=True)
     cliente_id = fields.Int(required=True)
     leilao_id = fields.Int(required=True)

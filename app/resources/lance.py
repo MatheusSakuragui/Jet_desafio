@@ -4,12 +4,13 @@ from app.schemas import LanceSchema, ProdutoSchema
 from flask_jwt_extended import jwt_required, create_access_token
 from app.db import db
 from datetime import datetime
+from sqlalchemy import desc,func
 
 class LanceResource(Resource):
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument('data', type=str, required=False, help='Data não informada')
-        self.reqparse.add_argument('valor', type=str, required=True, help='Valor não informado')
+        self.reqparse.add_argument('data', type=str, required=False, help='Data não informada', default=datetime.utcnow().isoformat())
+        self.reqparse.add_argument('valor', type=float, required=True, help='Valor não informado')
         self.reqparse.add_argument('cliente_id', type=int, required=True, help='Cliente id não informado')
         self.reqparse.add_argument('leilao_id', type=int, required=True, help='Leilão não informado')
         self.reqparse.add_argument('produto_id', type=int, required=True, help='Produto não informado')
@@ -26,13 +27,27 @@ class LanceResource(Resource):
         erros = lance_schema.validate(args)
         if erros:
             return erros, 400
+        
         lance = Lance(**args)
-        lance.data = datetime.strptime(args['data'], '%Y-%m-%dT%H:%M:%S')
+        lance.data = datetime.strptime(args['data'], '%Y-%m-%dT%H:%M:%S.%f')
+        
+        id_produto  = args['produto_id'] 
+        produto_buscado: Produto = Produto.query.get_or_404(id_produto) 
+        if lance.valor < produto_buscado.lance_inicial:
+            return "Valor do lançe não pode ser menor que o valor inicial", 400
+        
+        maior_lance_query = db.session.query(func.max(Lance.valor)).filter(Lance.produto_id == id_produto)
+        
+        maior_lance = maior_lance_query.scalar()
+        print(maior_lance)
+        if lance.valor <= maior_lance:
+            return "O lance precisa ser maior que os lances já feitos", 400
+        
         db.session.add(lance)
         db.session.commit()
-        id_produto  = args['produto_id'] 
+        
+        
         #Atualizando o campo lance_adicional na tabela Produto 
-        produto_buscado = Produto.query.get_or_404(id_produto)
         produto_schema = ProdutoSchema()
         produto = produto_schema.dump(produto_buscado)
         produto_buscado.lance_adicional = args['valor']
@@ -63,3 +78,9 @@ class LanceResource(Resource):
         db.session.delete(lance)
         db.session.commit()
         return None, 204
+    
+class LanceResourceLista(Resource):
+    def get(self, id):
+        lance: list(Lance) = Lance.query.order_by(desc(Lance.id)).filter_by(produto_id=id)
+        lance_schema = LanceSchema(many=True)
+        return lance_schema.dump(lance)

@@ -47,10 +47,12 @@ class Veiculos(db.Model):
     placa = db.Column(db.String(10), nullable=False, unique=True)
     ano = db.Column(db.String(4), nullable=False)
     qtd_portas = db.Column(db.Integer, nullable=False)
+    produto_id = db.Column(db.Integer, db.ForeignKey('produto.id'), nullable=False)
     
 class Eletronico(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     voltagem = db.Column(db.String(3), nullable=False)
+    produto_id = db.Column(db.Integer, db.ForeignKey('produto.id'), nullable=False)
 
 
 # ! Colocas as instituições financeiras no retorno
@@ -89,7 +91,6 @@ class Leilao(db.Model):
         return detalhes_leilao
     def verificar_atualizar_status(self):
         data_atual = datetime.now()
-
         if self.status == "FINALIZADO":
             return
 
@@ -113,11 +114,11 @@ class Leilao(db.Model):
                 for produto in produtos_nao_vendidos:
                     produto.leilao_id = proximo_leilao.id
                     produto.vendido = False 
-                db.session.commit()
+        db.session.commit()
 
 class Lance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    data = db.Column(db.DateTime, default=datetime.utcnow)
+    data = db.Column(db.DateTime, default=datetime.utcnow())
     valor = db.Column(db.Float, nullable=False)
     cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id'), nullable=False)
     leilao_id = db.Column(db.Integer, db.ForeignKey('leilao.id'), nullable=False)
