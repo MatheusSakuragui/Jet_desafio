@@ -49,3 +49,8 @@ class TipoProdutoResource(Resource):
         db.session.commit()
 
         return {'message': 'Tipo de Produto deletado com sucesso'}, 204
+
+class TipoProdutoResourceLista(Resource):
+    def get(self):
+        tipo_produtos = TipoProduto.query.all()
+        return tipo_produtos_schema.dump(tipo_produtos)
