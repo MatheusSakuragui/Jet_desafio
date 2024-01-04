@@ -90,6 +90,7 @@ class Leilao(db.Model):
             'status': self.status,
             'produtos': [{
                 'id': produto.id,
+                'nome': produto.nome,
                 'marca': produto.marca,
                 'modelo': produto.modelo,
                 'descricao': produto.descricao,
