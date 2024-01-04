@@ -66,5 +66,5 @@ class ClienteLogin(Resource):
         cliente = Cliente.query.filter_by(email=args['email']).first()
         if cliente and cliente.verificar_senha(args['senha']):
             access_token = create_access_token(identity=cliente.id)
-            return {'access_token': access_token}, 200
+            return {'access_token': access_token, 'user_id': cliente.id}, 200
         return {'message': 'Email ou senha inválidos'}, 401

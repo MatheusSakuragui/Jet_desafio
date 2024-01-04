@@ -10,6 +10,7 @@ import Container from '@mui/material/Container';
 import { useNavigate } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 
 const defaultTheme = createTheme();
@@ -21,9 +22,10 @@ export default function Login() {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     axios.post('http://localhost:5000/login', {email: data.get('email'), senha: data.get('senha')}).then((response) => {
-      localStorage.setItem('token', response.data.access_token);
+      const userData = response.data;
+      Cookies.set('user', userData);
       alert('Login realizado com sucesso!');
-      console.log(response);
+      navigate("/home");
     }).catch((error) => {
       if (error.response.status === 401) {
         alert('Email ou senha incorretos!');
