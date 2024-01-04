@@ -1,8 +1,6 @@
 import * as React from 'react';
 import AppBar from '@mui/material/AppBar';
 import Button from '@mui/material/Button';
-import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
@@ -17,6 +15,8 @@ import { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { Divider, Tooltip } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import NavBar from '../components/navBar';
 
 const defaultTheme = createTheme();
 
@@ -24,9 +24,9 @@ export default function Album() {
     const [leiloes, setLeiloes] = useState([]);
     const [currentTime, setCurrentTime] = useState(new Date());
     const [filtro, setFiltro] = useState("TODOS");
+    const navigate = useNavigate();
 
     useEffect(() => {
-        Cookies.get('user') ? console.log('Usuário logado') : window.location.href = '/';
         axios.get('http://localhost:5000/listaleilao').then((response) => {
             setLeiloes(response.data);
         });
@@ -75,12 +75,8 @@ export default function Album() {
     return (
         <ThemeProvider theme={defaultTheme}>
             <CssBaseline />
-            <AppBar position="relative">
-                <Toolbar>
-                    <Button color="inherit"><Tooltip title="Minha Conta"> <AccountCircleIcon sx={{ fontSize: 35 }} /> </Tooltip></Button>
-                    <Button color="inherit" sx={{ ml: 'auto' }}> <Tooltip title="Sair"> <LogoutOutlinedIcon sx={{ fontSize: 35 }} /> </Tooltip></Button>
-                </Toolbar>
-            </AppBar>
+          
+          <NavBar/>
 
             <Stack direction="row" spacing={2} sx={{ marginBottom: 2, marginTop: 5, marginLeft: 8 }}>
                 <Button variant={filtro === "TODOS" ? "contained" : "outlined"} onClick={() => handleFiltroChange("TODOS")}>
@@ -145,7 +141,7 @@ export default function Album() {
                             </CardContent>
                             <Divider />
                             <CardActions sx={{ justifyContent: 'right', marginTop: 'auto' }}>
-                                <Button size="large"><InfoOutlinedIcon sx={{ fontSize: 30 }} /></Button>
+                                <Button size="large"><InfoOutlinedIcon sx={{ fontSize: 30 }} onClick={()=> navigate(`/leilao/${leilao.id}`)}/></Button>
                             </CardActions>
                         </Card>
                     </Grid>
