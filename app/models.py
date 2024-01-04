@@ -18,6 +18,7 @@ class Cliente(db.Model):
 
 class Produto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(80), nullable=False)
     marca = db.Column(db.String(20), nullable=False)
     modelo = db.Column(db.String(20), nullable=False)
     descricao = db.Column(db.String(120), nullable=False)
