@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
+import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
 import GavelOutlinedIcon from '@mui/icons-material/GavelOutlined';
 import InfoIcon from '@mui/icons-material/Info';
 import { Typography, Card, CardContent, Grid, Tab, Tabs, TableHead, Table, TableCell, TableRow, TableBody, IconButton, Divider, Tooltip, DialogActions, Button, DialogTitle, DialogContent, Dialog, TextField } from '@mui/material';
@@ -18,7 +19,9 @@ export default function Leilao() {
     const [openModal, setOpenModal] = useState(false);
     const [openLanceModal, setOpenLanceModal] = useState(false);
     const [lanceValue, setLanceValue] = useState('');
+    const [refresh, setRefresh] = useState(false);
     const user = JSON.parse(Cookies.get('user'));
+    const navigate = useNavigate();
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -35,13 +38,14 @@ export default function Leilao() {
             try {
                 const response = await axios.get(`http://localhost:5000/leilao/${id}`);
                 setLeilao(response.data);
+                setRefresh(false);
             } catch (error) {
                 console.error(error);
             }
         };
 
         fetchLeilao();
-    }, [id]);
+    }, [id, refresh]);
 
     const handleOpenModal = (product) => {
         setSelectedProduct(product);
@@ -67,16 +71,15 @@ export default function Leilao() {
     const handleLance = () => {
         const valorLance = parseFloat(lanceValue);
         console.log(selectedProduct)
-        if(valorLance < selectedProduct.lance_inicial){
+        if (valorLance < selectedProduct.lance_inicial) {
             alert(`O valor do lance deve ser maior ou igual a ${selectedProduct.lance_inicial}`);
             return;
         } else if (valorLance < selectedProduct.lance_adicional) {
             alert(`O valor do lance deve ser maior ou igual a ${selectedProduct.lance_adicional}`);
             return;
-        } 
-        console.log(user)
-        
-        let body ={
+        }
+
+        let body = {
             "valor": valorLance,
             "cliente_id": user.user_id,
             "leilao_id": id,
@@ -84,8 +87,9 @@ export default function Leilao() {
         }
         console.log(body)
 
-        axios.post('http://localhost:5000/lance',body).then((response) => {
+        axios.post('http://localhost:5000/lance', body).then((response) => {
             alert('Lance realizado com sucesso!');
+            setRefresh(true);
         }).catch((error) => {
             if (error.response.status === 401) {
                 alert('Erro ao realizar lance!');
@@ -95,7 +99,7 @@ export default function Leilao() {
 
         console.log('Lance válido:', valorLance);
         handleCloseLanceModal();
-   
+
     };
 
     const handleDownload = async () => {
@@ -135,6 +139,9 @@ export default function Leilao() {
         <>
             <NavBar />
             <Grid container spacing={3} justifyContent="center" sx={{ marginTop: 5 }}>
+            <IconButton color='primary' aria-label="download" size='large' onClick={() => navigate("/home")} sx={{ position: "absolute", left: "1%", top: "10%", borderRadius: "50%" }}>
+                                <ArrowCircleLeftIcon sx={{ fontSize: 55 }} />
+                            </IconButton>
                 <Grid item xs={12} md={6}>
                     <Card>
                         <CardContent sx={{ textAlign: 'center' }}>
@@ -215,11 +222,14 @@ export default function Leilao() {
                                                                 <InfoIcon />
                                                             </IconButton>
                                                         </Tooltip>
-                                                        <Tooltip title="Dar Lance">
-                                                            <IconButton color='primary' onClick={()=>handleOpenLanceModal(produto)}>
-                                                                <GavelOutlinedIcon />
-                                                            </IconButton>
-                                                        </Tooltip>
+                                                        {leilao.status === "EM ANDAMENTO" && (
+
+                                                            <Tooltip title="Dar Lance">
+                                                                <IconButton color='primary' onClick={() => handleOpenLanceModal(produto)}>
+                                                                    <GavelOutlinedIcon />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        )}
                                                     </TableCell>
                                                 </TableRow>
                                             )
@@ -251,12 +261,16 @@ export default function Leilao() {
                                                                 <InfoIcon />
                                                             </IconButton>
                                                         </Tooltip>
-                                                        <Tooltip title="Dar Lance">
-                                                            <IconButton color='primary' onClick={()=>handleOpenLanceModal(produto)}>
-                                                                <GavelOutlinedIcon />
-                                                            </IconButton>
-                                                        </Tooltip>
+                                                        {leilao.status === "EM ANDAMENTO" && (
+
+                                                            <Tooltip title="Dar Lance">
+                                                                <IconButton color='primary' onClick={() => handleOpenLanceModal(produto)}>
+                                                                    <GavelOutlinedIcon />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        )}
                                                     </TableCell>
+
                                                 </TableRow>
                                             )
                                         ))}
@@ -298,6 +312,26 @@ export default function Leilao() {
                                                 </Typography>
                                             </>
                                         )}
+                                        <Divider sx={{ marginTop: 2, marginBottom: 2 }} />
+                                        <Typography variant="h6" paragraph>
+                                            <b>Últimos Lances</b>
+                                        </Typography>
+                                        <Table>
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell>Cliente</TableCell>
+                                                    <TableCell>Valor</TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {selectedProduct.lances?.map((lance) => (
+                                                    <TableRow key={lance.id}>
+                                                        <TableCell>{lance.cliente_nome}</TableCell>
+                                                        <TableCell>{lance.valor}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
                                     </DialogContent>
                                     <DialogActions>
                                         <Button onClick={handleCloseModal} color="primary">
@@ -309,14 +343,14 @@ export default function Leilao() {
 
                             <Dialog open={openLanceModal} onClose={handleCloseLanceModal} maxWidth={"sm"} fullWidth={true}>
                                 <DialogTitle>Dar Lance</DialogTitle>
-                                 <DialogContent>
-                                <Typography variant="subtitle1" >
-                                    <b>O lance mínimo é de:</b> R$ {selectedProduct?.lance_inicial > selectedProduct?.lance_adicional ? selectedProduct?.lance_inicial : selectedProduct?.lance_adicional}    
-                                </Typography> 
+                                <DialogContent>
+                                    <Typography variant="subtitle1" >
+                                        <b>O lance mínimo é de:</b> R$ {selectedProduct?.lance_inicial > selectedProduct?.lance_adicional ? selectedProduct?.lance_inicial : selectedProduct?.lance_adicional}
+                                    </Typography>
                                     <TextField
                                         label="Valor do Lance"
                                         variant="outlined"
-                                        fullWidth   
+                                        fullWidth
                                         type="number"
                                         value={lanceValue}
                                         onChange={(e) => setLanceValue(e.target.value)}

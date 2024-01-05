@@ -40,6 +40,7 @@ class Produto(db.Model):
     leilao = db.relationship('Leilao', backref=db.backref('produtos', lazy=True))
     veiculo = db.relationship('Veiculos', backref='produto', uselist=False, cascade='all, delete-orphan')
     eletronico = db.relationship('Eletronico', backref='produto', uselist=False, cascade='all, delete-orphan')
+    lances = db.relationship('Lance', backref='produto', lazy=True)
     
     
 class Financeiro(db.Model):
@@ -77,7 +78,8 @@ class Leilao(db.Model):
             .filter_by(leilao_id=self.id)
             .options(
                 joinedload(Produto.veiculo),
-                joinedload(Produto.eletronico)
+                joinedload(Produto.eletronico),
+                joinedload(Produto.lances).joinedload(Lance.cliente)  # Adiciona informações do cliente
             )
             .order_by(Produto.id)
             .all()
@@ -117,6 +119,20 @@ class Leilao(db.Model):
                 produto_info['eletronico'] = {
                     'voltagem': produto.eletronico.voltagem
                 }
+
+            # Adiciona informações de lances com nome do cliente
+            lances_info = []
+            for lance in produto.lances:
+                lance_info = {
+                    'data': lance.data.strftime('%Y-%m-%dT%H:%M:%S'),
+                    'valor': lance.valor,
+                    'cliente_nome': lance.cliente.nome,  # Adiciona o nome do cliente
+                    'leilao_id': lance.leilao_id,
+                    'produto_id': lance.produto_id
+                }
+                lances_info.append(lance_info)
+
+            produto_info['lances'] = lances_info
 
             detalhes_leilao['produtos'].append(produto_info)
 
