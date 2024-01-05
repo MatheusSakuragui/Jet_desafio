@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Typography, Card, CardContent, Grid, Button } from '@mui/material';
+import { Typography, Card, CardContent, Grid, Button, Tab, Tabs, TableHead, Table, TableCell, TableRow, TableBody } from '@mui/material';
 import NavBar from '../components/navBar';
 import { saveAs } from 'file-saver';
 
 export default function Leilao() {
     const { id } = useParams();
     const [leilao, setLeilao] = useState(null);
+    const [selectedTab, setSelectedTab] = useState(0);
 
     useEffect(() => {
         const fetchLeilao = async () => {
@@ -26,13 +27,17 @@ export default function Leilao() {
         try {
 
             const response = await axios.get(`http://localhost:5000/leilaoDET/${leilao.id}`, {
-                responseType: 'blob', // Especificar o tipo de resposta como blob
+                responseType: 'blob',
             });
 
-            saveAs(response.data, `leilao_${id}.json`);
+            saveAs(response.data, `leilao_${id}.DET`);
         } catch (error) {
             console.error('Erro ao baixar o arquivo:', error);
         }
+    };
+
+    const handleTabChange = (event, newValue) => {
+        setSelectedTab(newValue);
     };
 
     if (!leilao) {
@@ -69,28 +74,55 @@ export default function Leilao() {
                             <Typography variant="h6" color="primary" paragraph>
                                 Produtos:
                             </Typography>
-                            {leilao.produtos.map((produto) => (
-                                <div key={produto.id}>
-                                    <Typography variant="subtitle1" color="textSecondary">
-                                        <b>Marca:</b> {produto.marca}
-                                    </Typography>
-                                    <Typography variant="subtitle1" color="textSecondary">
-                                        <b>Modelo:</b> {produto.modelo}
-                                    </Typography>
-                                    <Typography variant="subtitle1" color="textSecondary">
-                                        <b>Descrição:</b> {produto.descricao}
-                                    </Typography>
-                                    <Typography variant="subtitle1" color="textSecondary">
-                                        <b>Lance Inicial:</b> {produto.lance_inicial}
-                                    </Typography>
-                                    <Typography variant="subtitle1" color="textSecondary">
-                                        <b>Lance Adicional:</b> {produto.lance_adicional}
-                                    </Typography>
-                                    <Typography variant="subtitle1" color="textSecondary">
-                                        <b>Vendido:</b> {produto.vendido ? 'Sim' : 'Não'}
-                                    </Typography>
-                                </div>
-                            ))}
+                           <Tabs value={selectedTab} onChange={handleTabChange} aria-label="simple tabs example">
+                                <Tab label="Veículos" />
+                                <Tab label="Eletrônicos" />
+                            </Tabs>
+                            {selectedTab === 0 && (
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell>Nome</TableCell>
+                                            <TableCell>Descrição</TableCell>
+                                    
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {leilao.produtos.map((produto) => (
+                                            produto.veiculo && (
+                                                <TableRow key={produto.id}>
+                                                    <TableCell><b>{produto.nome}</b></TableCell>
+                                                    <TableCell>{produto.descricao}</TableCell>
+                                                </TableRow>
+                                            )
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            )}
+
+                            {selectedTab === 1 && (
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell>Nome</TableCell>
+                                            <TableCell>Descrição</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {leilao.produtos.map((produto) => (
+                                            produto.eletronico && (
+                                                <TableRow key={produto.id}>
+                                                    <TableCell><b>{produto.nome}</b></TableCell>
+                                                    <TableCell>{produto.descricao}</TableCell>
+                                                </TableRow>
+                                            )
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            )}
+
+
+
                         </CardContent>
                         <Button variant="contained" onClick={handleDownload}>
                                 Download do Leilão

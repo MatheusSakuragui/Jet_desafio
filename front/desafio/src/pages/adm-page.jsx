@@ -45,8 +45,9 @@ export default function AdmPage() {
         }).catch((error) => {
             console.log(error);
         });
-        
+
         axios.get("http://localhost:5000/listatipo-produto").then((response) => {
+            console.log(response.data);
             setTiposProduto(response.data);
             setRefresh(false);
         }).catch((error) => {
@@ -102,13 +103,42 @@ export default function AdmPage() {
             leilao_id: formDataProduto.leilaoId,
             tipo_produto_id: formDataProduto.tipoProdutoId,
         };
-        
+
         axios.post("http://localhost:5000/produtos", body).then((response) => {
             console.log(response);
+            const id = response.data.id;
+
+            if (formDataProduto.tipoProduto === "Veículo") {
+                let body = {
+                    produto_id: id,
+                    qtd_portas: formDataProduto.quantidadePortas,
+                    placa: formDataProduto.placa,
+                    ano: formDataProduto.ano,
+                }
+
+                axios.post("http://localhost:5000/veiculo", body).then((response) => {
+                    console.log(response);
+                }).catch((error) => {
+                    console.log(error);
+                });
+
+            } else if (formDataProduto.tipoProduto === "Eletrônico") {
+                let body = {
+                    produto_id: id,
+                    voltagem: formDataProduto.voltagem,
+                }
+
+                axios.post("http://localhost:5000/eletronico", body).then((response) => {
+                    console.log(response);
+                }).catch((error) => {
+                    console.log(error);
+                });
+            }
+
             setRefresh(true);
         }).catch((error) => {
             console.log(error);
-        })
+        });
 
         setFormDataProduto({
             nome: "",
@@ -135,7 +165,7 @@ export default function AdmPage() {
         }).catch((error) => {
             console.log(error);
         })
-     
+
         setFormDataTipoProduto({
             eletronico_veiculo: "",
             descricao: "",
@@ -217,7 +247,71 @@ export default function AdmPage() {
             <Box role="tabpanel" hidden={value !== 1} id={`simple-tabpanel-${1}`}>
                 <Box sx={{ p: 3 }}>
                     <Box component="form" onSubmit={handleSubmitProduto}>
-
+                        <FormControl fullWidth variant="outlined" margin="normal">
+                            <InputLabel id="tipoProdutoIdLabel">Tipo de Produto</InputLabel>
+                            <Select
+                                labelId="tipoProdutoIdLabel"
+                                label="Tipo de Produto"
+                                value={formDataProduto.tipoProdutoId}
+                                onChange={(e) => setFormDataProduto({ ...formDataProduto, tipoProdutoId: e.target.value })}
+                            >
+                                {tiposProduto.length > 0 ? tiposProduto?.map((tipoProduto) => (
+                                    <MenuItem key={tipoProduto?.id} value={tipoProduto?.id}>
+                                        {tipoProduto?.descricao}
+                                    </MenuItem>
+                                )) : <MenuItem value={0}>Nenhum tipo de produto cadastrado</MenuItem>}
+                            </Select>
+                        </FormControl>
+                        {tiposProduto.length > 0 && (
+    <div>
+        {tiposProduto.map((tipoProduto) => (
+            <div key={tipoProduto.id}>
+                {formDataProduto.tipoProdutoId === tipoProduto.id && tipoProduto.eletronico_veiculo === "Veículo" && (
+                    <div>
+                        <TextField
+                            name="quantidadePortas"
+                            label="Quantidade de Portas"
+                            fullWidth
+                            margin="normal"
+                            variant="outlined"
+                            value={formDataProduto.quantidadePortas}
+                            onChange={(e) => setFormDataProduto({ ...formDataProduto, quantidadePortas: e.target.value, tipoProduto: tipoProduto.eletronico_veiculo  })}
+                        />
+                        <TextField
+                            name="placa"
+                            label="Placa"
+                            fullWidth
+                            margin="normal"
+                            variant="outlined"
+                            value={formDataProduto.placa}
+                            onChange={(e) => setFormDataProduto({ ...formDataProduto, placa: e.target.value, tipoProduto: tipoProduto.eletronico_veiculo  })}
+                        />
+                        <TextField
+                            name="ano"
+                            label="Ano"
+                            fullWidth
+                            margin="normal"
+                            variant="outlined"
+                            value={formDataProduto.ano}
+                            onChange={(e) => setFormDataProduto({ ...formDataProduto, ano: e.target.value, tipoProduto: tipoProduto.eletronico_veiculo })}
+                        />
+                    </div>
+                )}
+                {formDataProduto.tipoProdutoId === tipoProduto.id && tipoProduto.eletronico_veiculo === "Eletrônico" && (
+                    <TextField
+                        name="voltagem"
+                        label="Voltagem"
+                        fullWidth
+                        margin="normal"
+                        variant="outlined"
+                        value={formDataProduto.voltagem}
+                        onChange={(e) => setFormDataProduto({ ...formDataProduto, voltagem: e.target.value, tipoProduto: tipoProduto.eletronico_veiculo })}
+                    />
+                )}
+            </div>
+        ))}
+    </div>
+)}                  
                         <TextField
                             name="nomeProduto"
                             label="Nome do Produto"
@@ -282,21 +376,7 @@ export default function AdmPage() {
                                 )) : <MenuItem value={0}>Nenhum leilão cadastrado</MenuItem>}
                             </Select>
                         </FormControl>
-                        <FormControl fullWidth variant="outlined" margin="normal">
-                            <InputLabel id="tipoProdutoIdLabel">Tipo de Produto</InputLabel>
-                            <Select
-                                labelId="tipoProdutoIdLabel"
-                                label="Tipo de Produto"
-                                value={formDataProduto.tipoProdutoId}
-                                onChange={(e) => setFormDataProduto({ ...formDataProduto, tipoProdutoId: e.target.value })}
-                            >
-                                {tiposProduto.length > 0 ? tiposProduto?.map((tipoProduto) => (
-                                    <MenuItem key={tipoProduto?.id} value={tipoProduto?.id}>
-                                        {tipoProduto?.descricao}
-                                    </MenuItem>
-                                )) : <MenuItem value={0}>Nenhum tipo de produto cadastrado</MenuItem>}
-                            </Select>
-                        </FormControl>
+
                         <Button variant="contained" color="primary" type="submit">
                             Cadastrar Produto
                         </Button>
@@ -329,7 +409,6 @@ export default function AdmPage() {
                 </Box>
             </Box>
 
-            {/* Add content for other tabs as needed */}
         </Box>
     );
 }

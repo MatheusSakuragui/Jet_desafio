@@ -1,5 +1,6 @@
 from app.db import db
 from datetime import datetime
+from sqlalchemy.orm import joinedload
 
 class Cliente(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -13,8 +14,17 @@ class Cliente(db.Model):
     def verificar_senha(self, senha):
         return self.senha == senha
 
-
-# ! Produtos não vendidos deverão ser associados a um leilão futuro
+class Veiculos(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    placa = db.Column(db.String(10), nullable=False, unique=True)
+    ano = db.Column(db.String(4), nullable=False)
+    qtd_portas = db.Column(db.Integer, nullable=False)
+    produto_id = db.Column(db.Integer, db.ForeignKey('produto.id'), nullable=False)
+    
+class Eletronico(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    voltagem = db.Column(db.String(3), nullable=False)
+    produto_id = db.Column(db.Integer, db.ForeignKey('produto.id'), nullable=False)
 
 class Produto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -28,8 +38,8 @@ class Produto(db.Model):
     leilao_id = db.Column(db.Integer, db.ForeignKey('leilao.id'), nullable=False)
     tipo_produto_id = db.Column(db.Integer, db.ForeignKey('tipo_produto.id'), nullable=False)
     leilao = db.relationship('Leilao', backref=db.backref('produtos', lazy=True))
-    # veiculo = db.relationship('Veiculo', backref=db.backref('produtos', lazy=True))
-    # eletronico = db.relationship('Eletronico', backref=db.backref('produtos', lazy=True))
+    veiculo = db.relationship('Veiculos', backref='produto', uselist=False, cascade='all, delete-orphan')
+    eletronico = db.relationship('Eletronico', backref='produto', uselist=False, cascade='all, delete-orphan')
     
     
 class Financeiro(db.Model):
@@ -43,18 +53,6 @@ class Conta(db.Model):
     financeiro_id = db.Column(db.Integer, db.ForeignKey('financeiro.id'), nullable=False)
     financeiro = db.relationship('Financeiro', backref='conta', lazy=True)
 
-# ! A decidir a maneira de como associar com Produto e colocar sua FK
-class Veiculos(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    placa = db.Column(db.String(10), nullable=False, unique=True)
-    ano = db.Column(db.String(4), nullable=False)
-    qtd_portas = db.Column(db.Integer, nullable=False)
-    produto_id = db.Column(db.Integer, db.ForeignKey('produto.id'), nullable=False)
-    
-class Eletronico(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    voltagem = db.Column(db.String(3), nullable=False)
-    produto_id = db.Column(db.Integer, db.ForeignKey('produto.id'), nullable=False)
 
 class LeilaoFinanceiro(db.Model):
     __tablename__ = 'leilao_financeiro'
@@ -62,7 +60,6 @@ class LeilaoFinanceiro(db.Model):
     conta_id = db.Column(db.Integer, db.ForeignKey('conta.id'), nullable=False)
     leilao_id = db.Column(db.Integer, db.ForeignKey('leilao.id'), nullable=False)
     
-# ! Colocas as instituições financeiras no retorno
 class Leilao(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(80), nullable=False)
@@ -75,11 +72,17 @@ class Leilao(db.Model):
     conta = db.relationship('Conta', secondary=LeilaoFinanceiro.__table__, backref='Leilao', lazy=True)
     
     def detalhes_leilao(self) -> dict:
-        
-        produtos = Produto.query.filter_by(leilao_id=self.id).order_by(Produto.id).all()
-        
-        # financeiro = Financeiro.id
-        
+        produtos = (
+            Produto.query
+            .filter_by(leilao_id=self.id)
+            .options(
+                joinedload(Produto.veiculo),
+                joinedload(Produto.eletronico)
+            )
+            .order_by(Produto.id)
+            .all()
+        )
+
         detalhes_leilao = {
             'id': self.id,
             'nome': self.nome,
@@ -88,7 +91,11 @@ class Leilao(db.Model):
             'detalhes': self.detalhes,
             'qtd_produtos': self.qtd_produtos,
             'status': self.status,
-            'produtos': [{
+            'produtos': []
+        }
+
+        for produto in produtos:
+            produto_info = {
                 'id': produto.id,
                 'nome': produto.nome,
                 'marca': produto.marca,
@@ -97,10 +104,24 @@ class Leilao(db.Model):
                 'lance_inicial': produto.lance_inicial,
                 'lance_adicional': produto.lance_adicional,
                 'vendido': produto.vendido
-            } for produto in produtos],
-            "Instituições financeiras": list(set(conta.financeiro.banco for conta in self.conta))
-        }
+            }
 
+            if produto.veiculo:
+                produto_info['veiculo'] = {
+                    'placa': produto.veiculo.placa,
+                    'ano': produto.veiculo.ano,
+                    'qtd_portas': produto.veiculo.qtd_portas
+                }
+
+            if produto.eletronico:
+                produto_info['eletronico'] = {
+                    'voltagem': produto.eletronico.voltagem
+                }
+
+            detalhes_leilao['produtos'].append(produto_info)
+
+        instituicoes_financeiras = list(set(conta.financeiro.banco for conta in self.conta))
+        detalhes_leilao["Instituicoes financeiras"] = instituicoes_financeiras
 
         return detalhes_leilao
     
