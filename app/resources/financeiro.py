@@ -1,6 +1,7 @@
 from flask_restful import Resource, reqparse
 from app.models import Financeiro
 from app.schemas import FinanceiroSchema
+from app.swaggerdocs.financeiroswagger import SWAGGER_DOCS
 from app.db import db
 
 class FinanceiroResource(Resource):
@@ -46,3 +47,8 @@ class FinanceiroResource(Resource):
         db.session.delete(financeiro)
         db.session.commit()
         return {'message': 'Financeiro deletado com sucesso'}
+    
+FinanceiroResource.get.__doc__ = SWAGGER_DOCS["GET"]
+FinanceiroResource.post.__doc__ = SWAGGER_DOCS["POST"]
+FinanceiroResource.put.__doc__ = SWAGGER_DOCS["PUT"]
+FinanceiroResource.delete.__doc__ = SWAGGER_DOCS["DELETE"] 

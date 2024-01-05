@@ -29,6 +29,7 @@ def create_app():
     api = Api(app)
     swagger = Swagger(app)
     api.add_resource(ClienteResource, '/clientes', '/clientes/<int:id>')
+    api.add_resource(ProdutoResourceLista,'/listaproduto')
     api.add_resource(ProdutoResource, '/produtos', '/produtos/<int:id>')
     api.add_resource(FinanceiroResource, '/financeiro', '/financeiro/<int:id>')
     api.add_resource(ContaResource, '/conta', '/conta/<int:id>')
@@ -40,8 +41,8 @@ def create_app():
     api.add_resource(EletronicoResource, '/eletronico','/eletronico/<int:id>')
     api.add_resource(VeiculoResource,'/veiculo','/veiculo/<int:id>')
     api.add_resource(LanceResource,'/lance','/lance/<int:id>')
-    api.add_resource(LanceResourceLista, '/historicolance', '/historicolance/<int:id>')
-    api.add_resource(LeilaoDETResource,'/leilaoDET','/leilaoDET/<int:id>')
+    api.add_resource(LanceResourceLista,'/historicolance/<int:id>')
+    api.add_resource(LeilaoDETResource,'/leilaoDET/<int:id>')
     
     scheduler.init_app(app)
     scheduler.start()

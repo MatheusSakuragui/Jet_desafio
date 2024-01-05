@@ -2,6 +2,7 @@ from flask_restful import Resource, reqparse
 from app.models import Produto, Leilao, TipoProduto
 from app.schemas import ProdutoSchema
 from app.db import db
+from app.swaggerdocs.produtoswagger import SWAGGER_DOCS
 from sqlalchemy import and_
 from datetime import datetime
 
@@ -130,3 +131,9 @@ class ProdutoResourceLista(Resource):
             })
     
         return ProdutoRetorno
+    
+ProdutoResource.get.__doc__ = SWAGGER_DOCS['SINGLE']['GET']
+ProdutoResource.post.__doc__ = SWAGGER_DOCS['SINGLE']['POST']
+ProdutoResource.put.__doc__ = SWAGGER_DOCS['SINGLE']['PUT']
+ProdutoResource.delete.__doc__ = SWAGGER_DOCS['SINGLE']['DELETE']
+ProdutoResourceLista.get.__doc__ = SWAGGER_DOCS['LISTA']['GET']

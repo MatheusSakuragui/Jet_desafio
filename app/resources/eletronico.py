@@ -1,6 +1,7 @@
 from flask_restful import Resource, reqparse
 from app.models import Eletronico
 from app.schemas import EletronicoSchema
+from app.swaggerdocs.eletronicoswagger import SWAGGER_DOCS
 from app.db import db
 
 class EletronicoResource(Resource):
@@ -45,4 +46,9 @@ class EletronicoResource(Resource):
             eletronico_schema = EletronicoSchema()
             response_data = eletronico_schema.dump(eletronico)
             return response_data, 200
+        
+EletronicoResource.get.__doc__ = SWAGGER_DOCS["GET"]
+EletronicoResource.post.__doc__ = SWAGGER_DOCS["POST"]
+EletronicoResource.put.__doc__ = SWAGGER_DOCS["PUT"]
+EletronicoResource.delete.__doc__ = SWAGGER_DOCS["DELETE"] 
                 

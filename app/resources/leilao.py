@@ -4,6 +4,7 @@ from app.schemas import LeilaoSchema
 from app.utils.verificar_status import verificar_e_atualizar_status_leiloes
 from app.scheduler import scheduler
 from datetime import datetime
+from app.swaggerdocs.leilaoswagger import SWAGGER_DOCS
 from app.db import db
 
 class LeilaoResource(Resource):
@@ -89,3 +90,9 @@ class LeilaoResourceLista(Resource):
         leilao = Leilao.query.all()
         schema = LeilaoSchema()
         return schema.dump(leilao, many=True)
+    
+LeilaoResource.get.__doc__ = SWAGGER_DOCS['SINGLE']['GET']
+LeilaoResource.post.__doc__ = SWAGGER_DOCS['SINGLE']['POST']
+LeilaoResource.put.__doc__ = SWAGGER_DOCS['SINGLE']['PUT']
+LeilaoResource.delete.__doc__ = SWAGGER_DOCS['SINGLE']['DELETE']
+LeilaoResourceLista.get.__doc__ = SWAGGER_DOCS['LISTA']['GET']
