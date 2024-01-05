@@ -1,5 +1,4 @@
 import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -8,13 +7,11 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import CssBaseline from '@mui/material/CssBaseline';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
-import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useEffect, useState } from 'react';
-import Cookies from 'js-cookie';
 import axios from 'axios';
-import { Divider, Tooltip } from '@mui/material';
+import { Divider } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import NavBar from '../components/navBar';
 
