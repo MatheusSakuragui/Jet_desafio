@@ -4,9 +4,10 @@ import axios from 'axios';
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 import GavelOutlinedIcon from '@mui/icons-material/GavelOutlined';
 import InfoIcon from '@mui/icons-material/Info';
-import { Typography, Card, CardContent, Grid, Tab, Tabs, TableHead, Table, TableCell, TableRow, TableBody, IconButton, Divider, Tooltip, DialogActions, Button, DialogTitle, DialogContent, Dialog } from '@mui/material';
+import { Typography, Card, CardContent, Grid, Tab, Tabs, TableHead, Table, TableCell, TableRow, TableBody, IconButton, Divider, Tooltip, DialogActions, Button, DialogTitle, DialogContent, Dialog, TextField } from '@mui/material';
 import NavBar from '../components/navBar';
 import { saveAs } from 'file-saver';
+import Cookies from 'js-cookie';
 
 export default function Leilao() {
     const { id } = useParams();
@@ -15,6 +16,9 @@ export default function Leilao() {
     const [currentTime, setCurrentTime] = useState(new Date());
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [openModal, setOpenModal] = useState(false);
+    const [openLanceModal, setOpenLanceModal] = useState(false);
+    const [lanceValue, setLanceValue] = useState('');
+    const user = JSON.parse(Cookies.get('user'));
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -49,9 +53,53 @@ export default function Leilao() {
         setOpenModal(false);
     };
 
+    const handleOpenLanceModal = (produto) => {
+        setSelectedProduct(produto);
+        setOpenLanceModal(true);
+    };
+
+    const handleCloseLanceModal = () => {
+        setSelectedProduct(null);
+        setOpenLanceModal(false);
+        setLanceValue('');
+    };
+
+    const handleLance = () => {
+        const valorLance = parseFloat(lanceValue);
+        console.log(selectedProduct)
+        if(valorLance < selectedProduct.lance_inicial){
+            alert(`O valor do lance deve ser maior ou igual a ${selectedProduct.lance_inicial}`);
+            return;
+        } else if (valorLance < selectedProduct.lance_adicional) {
+            alert(`O valor do lance deve ser maior ou igual a ${selectedProduct.lance_adicional}`);
+            return;
+        } 
+        console.log(user)
+        
+        let body ={
+            "valor": valorLance,
+            "cliente_id": user.user_id,
+            "leilao_id": id,
+            "produto_id": selectedProduct.id
+        }
+        console.log(body)
+
+        axios.post('http://localhost:5000/lance',body).then((response) => {
+            alert('Lance realizado com sucesso!');
+        }).catch((error) => {
+            if (error.response.status === 401) {
+                alert('Erro ao realizar lance!');
+            }
+            console.log(error);
+        });
+
+        console.log('Lance válido:', valorLance);
+        handleCloseLanceModal();
+   
+    };
+
     const handleDownload = async () => {
         try {
-
             const response = await axios.get(`http://localhost:5000/leilaoDET/${leilao.id}`, {
                 responseType: 'blob',
             });
@@ -79,7 +127,6 @@ export default function Leilao() {
         return `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
     };
 
-
     if (!leilao) {
         return <div>Carregando...</div>;
     }
@@ -91,7 +138,6 @@ export default function Leilao() {
                 <Grid item xs={12} md={6}>
                     <Card>
                         <CardContent sx={{ textAlign: 'center' }}>
-
                             <IconButton color='primary' aria-label="download" size='large' onClick={handleDownload} sx={{ position: "absolute", left: "70%", bottom: "80%", borderRadius: "50%" }}>
                                 <DownloadForOfflineIcon sx={{ fontSize: 45 }} />
                             </IconButton>
@@ -148,17 +194,14 @@ export default function Leilao() {
 
                             {selectedTab === 0 && (
                                 <Table>
-
                                     <TableHead>
                                         <TableRow>
                                             <TableCell>Nome</TableCell>
                                             <TableCell>Descrição</TableCell>
                                             <TableCell>Último Lance</TableCell>
                                             <TableCell>Ações</TableCell>
-
                                         </TableRow>
                                     </TableHead>
-
                                     <TableBody>
                                         {leilao.produtos.map((produto) => (
                                             produto.veiculo && (
@@ -166,19 +209,27 @@ export default function Leilao() {
                                                     <TableCell><b>{produto.nome}</b></TableCell>
                                                     <TableCell>{produto.descricao}</TableCell>
                                                     <TableCell>{produto.lance_adicional}</TableCell>
-                                                    <TableCell><Tooltip title="Mais informações"><IconButton color='primary' onClick={()=> handleOpenModal(produto)}> <InfoIcon /> </IconButton> </Tooltip> </TableCell>
-                                                    <TableCell><Tooltip title="Dar Lance"><IconButton color='primary'> <GavelOutlinedIcon /> </IconButton> </Tooltip> </TableCell>
+                                                    <TableCell>
+                                                        <Tooltip title="Mais informações">
+                                                            <IconButton color='primary' onClick={() => handleOpenModal(produto)}>
+                                                                <InfoIcon />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        <Tooltip title="Dar Lance">
+                                                            <IconButton color='primary' onClick={()=>handleOpenLanceModal(produto)}>
+                                                                <GavelOutlinedIcon />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </TableCell>
                                                 </TableRow>
                                             )
                                         ))}
                                     </TableBody>
-
                                 </Table>
                             )}
 
                             {selectedTab === 1 && (
                                 <Table>
-
                                     <TableHead>
                                         <TableRow>
                                             <TableCell>Nome</TableCell>
@@ -187,7 +238,6 @@ export default function Leilao() {
                                             <TableCell>Ações</TableCell>
                                         </TableRow>
                                     </TableHead>
-
                                     <TableBody>
                                         {leilao.produtos.map((produto) => (
                                             produto.eletronico && (
@@ -195,63 +245,93 @@ export default function Leilao() {
                                                     <TableCell><b>{produto.nome}</b></TableCell>
                                                     <TableCell>{produto.descricao}</TableCell>
                                                     <TableCell>{produto.lance_adicional}</TableCell>
-                                                    <TableCell><Tooltip title="Mais informações"><IconButton color='primary' onClick={()=> handleOpenModal(produto)}> <InfoIcon /> </IconButton> </Tooltip> </TableCell>
-                                                    <TableCell><Tooltip title="Dar Lance"><IconButton color='primary'> <GavelOutlinedIcon /> </IconButton> </Tooltip> </TableCell>
+                                                    <TableCell>
+                                                        <Tooltip title="Mais informações">
+                                                            <IconButton color='primary' onClick={() => handleOpenModal(produto)}>
+                                                                <InfoIcon />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        <Tooltip title="Dar Lance">
+                                                            <IconButton color='primary' onClick={()=>handleOpenLanceModal(produto)}>
+                                                                <GavelOutlinedIcon />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </TableCell>
                                                 </TableRow>
                                             )
                                         ))}
                                     </TableBody>
-
                                 </Table>
                             )}
 
-{selectedProduct && (
-                <Dialog open={openModal} onClose={handleCloseModal} maxWidth={"md"} fullWidth={true}>
-                    <DialogTitle>{selectedProduct.nome}</DialogTitle>
-                    <DialogContent >
-                        <Typography variant="subtitle1" color="textSecondary">
-                            <b>Marca:</b> {selectedProduct.marca}
-                        </Typography>
-                        <Typography variant="subtitle1" color="textSecondary">
-                            <b>Modelo:</b> {selectedProduct.modelo}
-                        </Typography>
-                        <Typography variant="subtitle1" color="textSecondary">
-                            <b>Descrição:</b> {selectedProduct.descricao}
-                        </Typography>
-                        <Typography variant="subtitle1" color="textSecondary">
-                            <b>Lance Inicial:</b> {selectedProduct.lance_inicial}
-                        </Typography>
-                        <Typography variant="subtitle1" color="textSecondary">
-                            <b>Lance Adicional:</b> {selectedProduct.lance_adicional}
-                        </Typography>
-                        {selectedProduct.eletronico && (
-                            <Typography variant="subtitle1" color="textSecondary">
-                                <b>Voltagem:</b> {selectedProduct.eletronico.voltagem}
-                            </Typography>
-                        )}
-                        {selectedProduct.veiculo && (
-                            <>
-                                <Typography variant="subtitle1" color="textSecondary">
-                                    <b>Ano:</b> {selectedProduct.veiculo.ano}
-                                </Typography>
-                                <Typography variant="subtitle1" color="textSecondary">
-                                    <b>Quantidade de Portas:</b> {selectedProduct.veiculo.qtd_portas}
-                                </Typography>
-                            </>
-                        )}
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleCloseModal} color="primary">
-                            Fechar
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            )}
+                            {selectedProduct && (
+                                <Dialog open={openModal} onClose={handleCloseModal} maxWidth={"md"} fullWidth={true}>
+                                    <DialogTitle>{selectedProduct.nome}</DialogTitle>
+                                    <DialogContent>
+                                        <Typography variant="subtitle1" color="textSecondary">
+                                            <b>Marca:</b> {selectedProduct.marca}
+                                        </Typography>
+                                        <Typography variant="subtitle1" color="textSecondary">
+                                            <b>Modelo:</b> {selectedProduct.modelo}
+                                        </Typography>
+                                        <Typography variant="subtitle1" color="textSecondary">
+                                            <b>Descrição:</b> {selectedProduct.descricao}
+                                        </Typography>
+                                        <Typography variant="subtitle1" color="textSecondary">
+                                            <b>Lance Inicial:</b> {selectedProduct.lance_inicial}
+                                        </Typography>
+                                        <Typography variant="subtitle1" color="textSecondary">
+                                            <b>Lance Adicional:</b> {selectedProduct.lance_adicional}
+                                        </Typography>
+                                        {selectedProduct.eletronico && (
+                                            <Typography variant="subtitle1" color="textSecondary">
+                                                <b>Voltagem:</b> {selectedProduct.eletronico.voltagem}
+                                            </Typography>
+                                        )}
+                                        {selectedProduct.veiculo && (
+                                            <>
+                                                <Typography variant="subtitle1" color="textSecondary">
+                                                    <b>Ano:</b> {selectedProduct.veiculo.ano}
+                                                </Typography>
+                                                <Typography variant="subtitle1" color="textSecondary">
+                                                    <b>Quantidade de Portas:</b> {selectedProduct.veiculo.qtd_portas}
+                                                </Typography>
+                                            </>
+                                        )}
+                                    </DialogContent>
+                                    <DialogActions>
+                                        <Button onClick={handleCloseModal} color="primary">
+                                            Fechar
+                                        </Button>
+                                    </DialogActions>
+                                </Dialog>
+                            )}
 
-
-
+                            <Dialog open={openLanceModal} onClose={handleCloseLanceModal} maxWidth={"sm"} fullWidth={true}>
+                                <DialogTitle>Dar Lance</DialogTitle>
+                                 <DialogContent>
+                                <Typography variant="subtitle1" >
+                                    <b>O lance mínimo é de:</b> R$ {selectedProduct?.lance_inicial > selectedProduct?.lance_adicional ? selectedProduct?.lance_inicial : selectedProduct?.lance_adicional}    
+                                </Typography> 
+                                    <TextField
+                                        label="Valor do Lance"
+                                        variant="outlined"
+                                        fullWidth   
+                                        type="number"
+                                        value={lanceValue}
+                                        onChange={(e) => setLanceValue(e.target.value)}
+                                    />
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={handleCloseLanceModal} color="primary">
+                                        Cancelar
+                                    </Button>
+                                    <Button onClick={handleLance} color="primary">
+                                        Confirmar Lance
+                                    </Button>
+                                </DialogActions>
+                            </Dialog>
                         </CardContent>
-
                     </Card>
                 </Grid>
             </Grid>

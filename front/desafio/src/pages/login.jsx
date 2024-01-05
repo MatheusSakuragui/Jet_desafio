@@ -22,7 +22,8 @@ export default function Login() {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     axios.post('http://localhost:5000/login', {email: data.get('email'), senha: data.get('senha')}).then((response) => {
-      const userData = response.data;
+      let userData = response.data;
+      userData = JSON.stringify(userData);
       Cookies.set('user', userData);
       alert('Login realizado com sucesso!');
       navigate("/home");
