@@ -5,6 +5,7 @@ from flask_jwt_extended import jwt_required, create_access_token
 from app.db import db
 from datetime import datetime
 from sqlalchemy import desc,func
+from app.swaggerdocs.lanceswagger import SWAGGER_DOCS
 
 class LanceResource(Resource):
     def __init__(self):
@@ -34,15 +35,17 @@ class LanceResource(Resource):
         id_produto  = args['produto_id'] 
         produto_buscado: Produto = Produto.query.get_or_404(id_produto) 
         if lance.valor < produto_buscado.lance_inicial:
-            return "Valor do lançe não pode ser menor que o valor inicial", 400
+            return {"message":"Valor do lançe não pode ser menor que o valor inicial"}, 400
+        if lance.leilao_id != produto_buscado.leilao_id:
+            return {"message":"O produto para dar lançe precisa ser relacionado ao leilão"}, 400
+        
+        
         
         maior_lance_query = db.session.query(func.max(Lance.valor)).filter(Lance.produto_id == id_produto)
-        
         maior_lance = maior_lance_query.scalar()
-        
         if maior_lance:
             if lance.valor <= maior_lance:
-                return "O lance precisa ser maior que os lances já feitos", 400
+                return {"message":"O lance precisa ser maior que os lances já feitos"}, 400
         
         db.session.add(lance)
         db.session.commit()
@@ -58,22 +61,6 @@ class LanceResource(Resource):
         response_data = lance_schema.dump(lance)
         return response_data, 201
     
-    
-    def put(self, id):
-        lance = Lance.query.get_or_404(id, description='Lance não encontrado')
-        args = self.reqparse.parse_args()
-        lance.data = args['data']
-        lance.valor = args['valor']
-        lance.cliente_id = args['cliente_id']
-        lance.leilao_id = args['leilao_id']
-        lance.produto_id = args['produto_id']
-        lance.data = datetime.strptime(args['data'], '%Y-%m-%dT%H:%M:%S')
-        db.session.add(lance)
-        db.session.commit()
-        lance_schema = LanceSchema()
-        response_data = lance_schema.dump(lance)
-        return response_data, 200
-    
     def delete(self, id):
         lance = Lance.query.get_or_404(id, description='Cliente não encontrado')
         db.session.delete(lance)
@@ -85,3 +72,9 @@ class LanceResourceLista(Resource):
         lance: list(Lance) = Lance.query.order_by(desc(Lance.id)).filter_by(produto_id=id)
         lance_schema = LanceSchema(many=True)
         return lance_schema.dump(lance)
+    
+LanceResource.get.__doc__ = SWAGGER_DOCS['SINGLE']["GET"]
+LanceResource.post.__doc__ = SWAGGER_DOCS['SINGLE']["POST"]
+LanceResource.delete.__doc__ = SWAGGER_DOCS['SINGLE']["DELETE"]
+
+LanceResourceLista.get.__doc__ = SWAGGER_DOCS['LISTA']["GET"]

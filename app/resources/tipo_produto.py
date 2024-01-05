@@ -2,6 +2,7 @@ from flask import request
 from flask_restful import Resource, reqparse
 from app.models import db, TipoProduto
 from app.schemas import TipoProdutoSchema
+from app.swaggerdocs.tipo_produtoswagger import SWAGGER_DOCS
 
 tipo_produto_schema = TipoProdutoSchema()
 tipo_produtos_schema = TipoProdutoSchema(many=True)
@@ -54,3 +55,9 @@ class TipoProdutoResourceLista(Resource):
     def get(self):
         tipo_produtos = TipoProduto.query.all()
         return tipo_produtos_schema.dump(tipo_produtos)
+    
+TipoProdutoResource.get.__doc__ = SWAGGER_DOCS['SINGLE']['GET']
+TipoProdutoResource.post.__doc__ = SWAGGER_DOCS['SINGLE']['POST']
+TipoProdutoResource.put.__doc__ = SWAGGER_DOCS['SINGLE']['PUT']
+TipoProdutoResource.delete.__doc__ = SWAGGER_DOCS['SINGLE']['DELETE']
+TipoProdutoResourceLista.get.__doc__ = SWAGGER_DOCS['LISTA']['GET']

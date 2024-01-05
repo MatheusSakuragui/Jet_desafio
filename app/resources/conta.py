@@ -1,6 +1,7 @@
 from flask_restful import Resource, reqparse
 from app.models import Conta, Financeiro
 from app.schemas import ContaSchema
+from app.swaggerdocs.contaswagger import SWAGGER_DOCS
 from app.db import db
 
 class ContaResource(Resource):
@@ -49,3 +50,8 @@ class ContaResource(Resource):
         db.session.delete(conta)
         db.session.commit()
         return {'message': 'Conta deletada com sucesso'}
+    
+ContaResource.get.__doc__ = SWAGGER_DOCS["GET"]
+ContaResource.post.__doc__ = SWAGGER_DOCS["POST"]
+ContaResource.put.__doc__ = SWAGGER_DOCS["PUT"]
+ContaResource.delete.__doc__ = SWAGGER_DOCS["DELETE"] 

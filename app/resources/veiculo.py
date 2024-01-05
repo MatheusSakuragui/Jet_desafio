@@ -1,6 +1,7 @@
 from flask_restful import Resource, reqparse
 from app.models import Veiculos
 from app.schemas import VeiculoSchema
+from app.swaggerdocs.veiculoswagger import SWAGGER_DOCS
 from app.db import db
 
 class VeiculoResource(Resource):
@@ -49,4 +50,9 @@ class VeiculoResource(Resource):
             veiculo_schema = VeiculoSchema()
             response_data = veiculo_schema.dump(veiculo)
             return response_data, 200    
+        
+VeiculoResource.get.__doc__ = SWAGGER_DOCS["GET"]
+VeiculoResource.post.__doc__ = SWAGGER_DOCS["POST"]
+VeiculoResource.put.__doc__ = SWAGGER_DOCS["PUT"]
+VeiculoResource.delete.__doc__ = SWAGGER_DOCS["DELETE"] 
         
